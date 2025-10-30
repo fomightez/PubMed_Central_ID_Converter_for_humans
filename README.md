@@ -5,11 +5,15 @@
 *tl;dr:*  
 Click any `launch binder` badge on this page to get started learning about this package with demonstrations inside your browser.
 
-**PubMed_Central_ID_Converter_for_humans**  
-A simple library for using the PubMed Central ID Convert API.  
+----------------
+
+# PubMed_Central_ID_Converter_for_humans: PubMed API use for humans
+
+A simple library for using the PubMed Central ID Convert API in the mdodern Python/Jupyter ecosystems.  
 Key features:
+- **Control if you get results in a Python dictonary, Pandas dataframe, or JSON text**.
 - **It is JupyterLite compatible**.
-- **Control if you get results in a Python dictonary, Pandas dataframe, or JSON text.**
+
 
 It is largely Python-related kernel agnostic, which means you can use it in JupyterLite as well as in more standard Jupyter where a typical ipykernel is involved.  
 
