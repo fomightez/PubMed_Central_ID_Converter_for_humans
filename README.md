@@ -11,7 +11,7 @@ Click any `launch binder` badge on this page to get started learning about this 
 
 A simple library for using the PubMed Central ID Convert API in the mdodern Python/Jupyter ecosystems.  
 Key features:
-- **Control if you get results in a Python dictonary, Pandas dataframe, or JSON text**.
+- **Control if you get results in a Python dictionary, Pandas dataframe, or JSON text**.
 - **It is JupyterLite compatible**.
 
 
