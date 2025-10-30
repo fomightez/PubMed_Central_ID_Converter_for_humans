@@ -16,7 +16,7 @@ It is largely Python-related kernel agnostic, which means you can use it in Jupy
   <summary>✚ <b><i>Details</i></b> (Click to see details)</summary>
   <p>Largely influenced by these two packages developed by others:</p>
   <ul>
-    <li><a href="https://pypi.org/project/pmc-id-converter/">suqingdong's pmc-id-converter</a>[suqingdong's pmc-id-converter](https://pypi.org/project/pmc-id-converter/) (I have a demo offering for this package [here](https://github.com/fomightez/pmc_id_converter_demo-binder) that you can run in your browser via the MyBinder service without touching your own system or logging into anything.)</li>
+    <li><a href="https://pypi.org/project/pmc-id-converter/">suqingdong's pmc-id-converter</a> (I have a demo offering for this package <a href="https://github.com/fomightez/pmc_id_converter_demo-binder">here</a> that you can run in your browser via the MyBinder service without touching your own system or logging into anything.)</li>
     <li><a href="https://pypi.org/project/pubmed-id/">nelsonaloysio's pubmed-id</a></li>
   </ul>
 </details>
