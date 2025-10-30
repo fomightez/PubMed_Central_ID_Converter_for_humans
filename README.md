@@ -1,6 +1,11 @@
 [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fomightez/PubMed_Central_ID_Converter_for_humans/HEAD)
 
 # PubMed_Central_ID_Converter_for_humans
+
+*tl;dr:*  
+Click any `launch binder` badge on this page to get started learning about this package with demonstrations inside your browser.
+
+**PubMed_Central_ID_Converter_for_humans**  
 A simple library for using the PubMed Central ID Convert API.  
 Key features:
 - **It is JupyterLite compatible**.
