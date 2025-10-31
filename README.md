@@ -15,7 +15,8 @@ Key features:
 - **It is Pyodide/JupyterLite compatible**.
 
 
-It is largely Python-related kernel agnostic, which means you can use it in JupyterLite as well as in more standard Jupyter where a typical ipykernel is involved.  
+It is largely Python-related kernel agnostic, which means you can use it in JupyterLite as well as in more standard Jupyter where a typical ipykernel is involved. 
+In an opionated choice, the default format for the results is a Pandas Dataframe; however, this can be adjusted with settings. 
 
 ---------
 
