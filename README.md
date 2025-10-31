@@ -15,7 +15,7 @@ Summary of Key Features:
 - **Control format of results: Python dictionary, Pandas dataframe, or JSON text**.
 - **It is Pyodide/JupyterLite compatible**.
 
-**Details**
+**Features**
 
 A Python-based library for using the PubMed Central ID Convert API for dealing biomedical and scientific literature in modern Python/Jupyter ecosystems.  
 Use the library to get PubMed identifiers (PMIDs), PubMed Central identifiers, if they exist, and DOI indentifiers for scientific literature.  
