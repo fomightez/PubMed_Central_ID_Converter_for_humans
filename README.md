@@ -14,8 +14,8 @@ Key features:
 - **Control if you get results in a Python dictionary, Pandas dataframe, or JSON text**.
 - **It is Pyodide/JupyterLite compatible**.
 
-
-It is largely Python-related kernel agnostic, which means you can use it in JupyterLite as well as in more standard Jupyter where a typical ipykernel is involved. 
+Use the library to get PMIDs, PubMed Central identifiers, if they exist, and DOI for scientific literature.  
+It is largely Python-related kernel agnostic, which means you can use it in JupyterLite as well as in more standard Jupyter where a typical ipykernel is involved.   
 In an opionated choice, the default format for the results is a Pandas Dataframe; however, this can be adjusted with settings. 
 
 ---------
