@@ -1,5 +1,7 @@
 #!/usr/bin/env python
-# `test_PubMed_Central_ID_Converter_for_humans.py` by Wayne Decatur
+# `test_Converter.py` by Wayne Decatur
+# This is to run tests for `PubMed_Central_ID_Converter_for_humans`.
+#**-------------------------------------------------------------------------**#
 # this goes in same folder with ????????????????????
 # `my_conftest_for_test_missing_residue_detailer.py` & `conftest.py` that will 
 # be for  testing `missing_residue_detailer.py`, which needs to be in root 
@@ -12,11 +14,16 @@ from bs4 import BeautifulSoup
 
 # Run this file while working directory is at root,
 # like `pytest -v tests/test_PubMed_Central_ID_Converter_for_humans.py` 
+# -or-
+# if want printing from the pytests tests
+# like `pytest -s -v tests/test_PubMed_Central_ID_Converter_for_humans.py` 
 
 # Compares the results of my `PubMed_Central_ID_Converter_for_humans.py` to the 
 # results from pmc-id-converter (https://pypi.org/project/pmc-id-converter/) as
 # well as reformatted versions of those results to test of makes Pandas 
 # dataframes.
+# First, testa that pmc-id-converter is still producing same results since I am
+# relying on that for comparison.
 
 
 
@@ -56,27 +63,6 @@ current_provided_exampleMMMMMMM = "???????????????" # USED HERE??????
 
 ###---------------------------HELPER FUNCTIONS-------------------------------###
 
-def generate_filename_from_prefix_andPDBid(prefix,pdb_id):
-    '''
-    Takes a string that will be prefix and PDB id and generates file name with 
-    correct extenstion.
-    Specific examples
-    =================
-    Calling function with
-        (firstglanceinjmol_hmtl_file_prefix,'6w6v')
-    returns
-        "fgij_html_6w6v.html"
-
-    Calling function with
-        (firstglanceinjmol_text_file_prefix,'6w6v')
-    returns
-        "fgij_text_6w6v.txt"
-
-    '''
-    extension = prefix.split("_",2)[1]
-    if extension == "text":
-        extension = "txt"
-    return f"{prefix}{pdb_id}.{extension}"
 
 def write_string_to_file(s, fn):
     '''
@@ -99,8 +85,8 @@ def compare_file_content_equality(file1_path, file2_path, msg="Files are not ide
 
 
 
-###--------------------------END OF HELPER FUNCTIONS--------------------------###
-###--------------------------END OF HELPER FUNCTIONS--------------------------###
+###-------------------------END OF HELPER FUNCTIONS--------------------------###
+###-------------------------END OF HELPER FUNCTIONS--------------------------###
 
 
 
@@ -109,26 +95,33 @@ def compare_file_content_equality(file1_path, file2_path, msg="Files are not ide
 
 
 
+###----------------------------------TESTS-----------------------------------###
+###----------------------------------TESTS-----------------------------------###
 
-# Check the FGIJ-source generated files match the corresponding script files
+
+# Check the pmc-id-converter is getting same results as it did in the past
 #--------------------------------------------------------------------------#
-# Maybe start with just seeing if content okay and then up level to check if
-# entire HTML matches
-#`html_pairs_to_process` comes from conftest (which gets it from `my_conftest_for_test_missing_residue_detailer.py`), passing into here via pytest fixture
-#`text_pairs_to_process` comes from conftest (which gets it from `my_conftest_for_test_missing_residue_detailer.py`), passing into here via pytest fixture
+# Since I am relying on ththe pmc-id-converter for comparison, I'm checking 
+# the current version is working as expected.
+def test_pmc_id_converter_working_as_expected():
+    the_old_result_dict = {'doi': '10.1093/nar/gks1195', 'pmcid': 'PMC3531190', 'pmid': 23193287, 'requested-id': 'PMC3531190'}
+    the_old_query_result_list = ['23193287', None, '23193288']
+    from pmc_id_converter import API
+    example_result_a = API.idconv('PMC3531190')[0].data
+    example_results_b = API.idconv('23193287')[0].data)
+    assert example_result_a == the_old_result_dict, "Result of `API.idconv('PMC3531190')[0].data` is not matching expected."
+    assert example_result_b == the_old_result_dict, "Result of `API.idconv('23193287')[0].data` is not matching expected."
+    the_pmids = []
+    query_ids = 'PMC3531190, PMC3531191123, PMC3531191'
+    records_of_query_results = API.idconv(query_ids)
+    for record in records_of_query_results:
+        the_pmids.append(record.data.get('pmid'))
+    the_pmids = [str(x) if isinstance(x, int) else x for x in the_pmids] # otherwise they'll be integers which isn't what we really want as these are idenitifiers and not numbers to process in math
+    assert the_pmids == the_old_query_result_list, "Result of `API.idconv(query_ids)` is not matching expected."
 
-''' Need anything like this here?????
-def test_current_result_matches_results_in_my_fork():
-    assert filecmp.cmp(current_provided_example, provided_example_as_of_when_I_forked), "The current results Adam Bessa provides don't match what was there when I forked."
-test_current_result_matches_results_in_my_fork()
+
+
 '''
-
-# most basic test of set-up of things for pytest. (Doesn't test processing of data though.) Tests that what I set up to pass variables in `my_conftest_for_test_missing_residue_detailer.py` and `conftest.py` passes a variable. 
-def test_pytest_working_and_can_pass_fixtures_from_conftest_to_test_file(html_pairs_to_process, text_pairs_to_process, dir_2_put_test_files):  # Add the fixtures as parameters
-    assert dir_2_put_test_files == "additional_nbs/tests/" 
-    assert isinstance(html_pairs_to_process, list) 
-    assert isinstance(text_pairs_to_process, list) 
-
 # This next test tests that a file with the proper name convention can be 
 # supplied as souce of input data instead of fetching PDB file header from 
 # Protein Data Bank
@@ -215,6 +208,7 @@ def test_text_files_match(pair_index, dir_2_put_test_files):
 #BUT DOESN'T REALLY WORK With `ids` to name the tests  by the PDB id and if I use something like `request.node.name = f"test_text_files_match[{ids[pair_index]}]"` in the test, I am still hard coding in number and order with `"pair_index", [0, 1]`. SO THIS 
 # IS FINE FOR TESTING SET UP INITIALLY BUT WILL LIMIT ME AS I HOPE TO ADD MORE
 # details from more PDB diles to test.
+'''
 @pytest.mark.parametrize("pair_index", [0, 1])
 def test_text_files_match(text_pairs_to_process, pair_index, dir_2_put_test_files):
     """Test that each pair of text files have identical content."""
@@ -226,7 +220,7 @@ def test_text_files_match(text_pairs_to_process, pair_index, dir_2_put_test_file
 
 
 
-
+'''
 # Now up the level to checking if the HTML matches. Get & Iterate on each pair .
 def get_html_pairs_and_ids(directory):
     # Print what files we find to debug
@@ -258,3 +252,4 @@ def test_html_files_match(pair_index, dir_2_put_test_files):
     file1, file2 = pairs[pair_index]
     assert filecmp.cmp(dir_2_put_test_files + file1, dir_2_put_test_files + file2, shallow=False), \
         f"Files {dir_2_put_test_files + file1} and {dir_2_put_test_files + file2} do not have identical content"
+'''
