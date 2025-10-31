@@ -108,7 +108,7 @@ def test_pmc_id_converter_working_as_expected():
     the_old_query_result_list = ['23193287', None, '23193288']
     from pmc_id_converter import API
     example_result_a = API.idconv('PMC3531190')[0].data
-    example_results_b = API.idconv('23193287')[0].data)
+    example_results_b = API.idconv('23193287')[0].data
     assert example_result_a == the_old_result_dict, "Result of `API.idconv('PMC3531190')[0].data` is not matching expected."
     assert example_result_b == the_old_result_dict, "Result of `API.idconv('23193287')[0].data` is not matching expected."
     the_pmids = []
