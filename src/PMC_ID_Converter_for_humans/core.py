@@ -88,5 +88,6 @@ expected_jsonl_result_text = (
 if len(sys.argv) > 1:
     input_text_filepath = sys.argv[1]
 def PMC_id_convert():
-    print(expected_jsonl_result_text)
+    print(expected_jsonl_result_text[:-1]) # was adding one too many newlines, 
+    # so leaving off the last character, makes it match expected
 PMC_id_convert()
