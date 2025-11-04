@@ -14,7 +14,6 @@ import glob
 import filecmp
 import urllib
 import requests
-from bs4 import BeautifulSoup
 
 # Run this file while working directory is at root,
 # like `pytest -v tests/test_Converter.py` 
