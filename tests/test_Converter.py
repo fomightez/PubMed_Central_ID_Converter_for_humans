@@ -12,6 +12,8 @@ from io import StringIO
 import fnmatch
 import glob
 import filecmp
+import urllib
+import requests
 from bs4 import BeautifulSoup
 
 # Run this file while working directory is at root,
@@ -115,20 +117,14 @@ def compare_file_content_equality(file1_path, file2_path, msg="Files are not ide
 
 # Check the pmc-id-converter is getting same results as it did in the past
 #--------------------------------------------------------------------------#
-# Since I am relying on ththe pmc-id-converter for comparison, I'm checking 
+# Since I am relying on the pmc-id-converter for comparison, I'm checking 
 # the current version is working as expected before comparing any results from 
 # my script.
-def test_pmc_id_converter_cli_working_as_expected():
+def test_pmc_id_converter_cli_working_as_expected(tmp_path):
     the_old_result_text = '{"doi": "10.1007/s13205-018-1330-z", "pmcid": "PMC6039336", "pmid": 30003000, "requested-id": "30003000"}\n{"doi": "10.1002/open.201800095", "pmcid": "PMC6031859", "pmid": 30003001, "requested-id": "30003001"}\n{"doi": "10.1002/open.201800044", "pmcid": "PMC6031856", "pmid": 30003002, "requested-id": "30003002"}\n'
-    os.system('pmc_idconv 30003000 30003001 30003002 > current_result.txt')
-    with open('current_result.txt', 'r') as myfile:
-        current_result_text=myfile.read()
-    '''
-    with open('current_result.json', 'r') as f:
-        result_list = json.load(f)
-    current_result_list_string = ("\n").join(result_list)
-    '''
-    assert current_result_text == the_old_result_text, "Result of `pmc_idconv 30003000 30003001 30003002 > current_result.json` is not matching expected." 
+    current_result_fp = tmp_path / 'current_result.txt'
+    os.system(f'pmc_idconv 30003000 30003001 30003002 > {current_result_fp}')
+    assert current_result_fp.read_text() == the_old_result_text, "Result of `pmc_idconv 30003000 30003001 30003002 > current_result.json` is not matching expected." 
 
 def test_pmc_id_converter_as_function_working_as_expected():
     original_stderr = sys.stderr
@@ -140,7 +136,8 @@ def test_pmc_id_converter_as_function_working_as_expected():
     current_example_result_a = API.idconv('PMC3531190')[0].data
     current_example_result_b = API.idconv('23193287')[0].data
     assert current_example_result_a == the_old_result_dict, "Result of `API.idconv('PMC3531190')[0].data` is not matching expected."
-    assert current_example_result_b['doi'] == the_old_result_dict['doi'], "Result of `API.idconv('23193287')[0].data` is not matching expected."
+    assert current_example_result_b['doi'] == the_old_result_dict['doi'], (
+        "Result of `API.idconv('23193287')[0].data` is not matching expected.")
     the_pmids = []
     query_ids = 'PMC3531190, PMC3531191123, PMC3531191'
     try: # see the `sys.stderr = StringIO()` line above
@@ -148,7 +145,8 @@ def test_pmc_id_converter_as_function_working_as_expected():
         for record in records_of_query_results:
             the_pmids.append(record.data.get('pmid'))
         current_the_pmids = [str(x) if isinstance(x, int) else x for x in the_pmids] # otherwise they'll be integers which isn't what we really want as these are idenitifiers and not numbers to process in math
-        assert current_the_pmids == the_old_query_result_list, "Result of `API.idconv(query_ids)` is not matching expected."
+        assert current_the_pmids == the_old_query_result_list, (
+            "Result of `API.idconv(query_ids)` is not matching expected.")
     finally:
             sys.stderr = original_stderr # Restore original stderr ; see 
             # the `sys.stderr = StringIO()` line above
@@ -158,11 +156,13 @@ def test_pmc_id_converter_as_function_working_as_expected():
 # expected 
 #--------------------------------------------------------------------------#
 
-# Have one test at least test fetching the data works in pyodide or Python?
-def test_converter_for_humans_gets_data_from_API_whether_Pyodide_or_Python():
+# Have one test at least test fetching the data works in pyodide or Python using
+# the current recommended 'service_root' URL, which is what will be used with
+# Pyodide. (NOT SAME AS `pmc_id_converter` uses at this time.)
+def test_can_get_data_from_service_root_API_whether_Pyodide_or_Python():
     # MAYBE IF CAN. BUT HOW TO RUN PYTEST SINCE NO COMMAND LINE!?!
     # Answer see https://pypi.org/project/pytest-pyodide/ under 
-    #'run_in_pyodide' 
+    #'run_in_pyodide' ====> Looks liken needs selenium or related things which I have used with MyBinder but I am trying to find examples where pyodide installed alongside tpyical ipykernel, too. SO MIGHT BE EASIER FOR NOW TO SKIP THIS TEST & TEST THAT PART DIRECTLY IN JUPYTERLITE MYSELF separate FOR NOW!!!!
     #...AND /OR...
     # maybe make a separate test file and use the following:
     '''
@@ -172,19 +172,123 @@ def test_converter_for_humans_gets_data_from_API_whether_Pyodide_or_Python():
     # You can also pass other pytest arguments
     # pytest.main(['--pyargs', 'your_package.tests', '-k', 'specific_test_name'])
     '''
-    pass
+    import sys
+
+    if sys.platform == 'emscripten':  # found more commonly used on GitHub than `if "pyodide" in sys.modules`
+        # Pyodide/JupyterLite specific code
+        print(
+            "[Running this test where pyodide is the underlying Python-basis.]")
+        # Test can get data from PMC ID Converter API 
+        # (https://pmc.ncbi.nlm.nih.gov/tools/id-converter-api/) using 
+        # a Pyodide/JupyterLite-compatible approach
+        # FOR NOW, just copy the pertinent code into a JupyterLite session.
+        # (I HAVE YET TO MAKE THIS CODE BUT WHEN DO THAT, EITHER PASTE IN AS A 
+        # DOCSTRING or OTHERWISE POINT FROM HERE TO THAT CODE.)
+    else:
+        # Normal Python code
+        print(
+            "[Running this test where typical Python is the underlying Python" \
+            "-basis.]")
+        # Test can get data from PMC ID Converter API
+        # (https://pmc.ncbi.nlm.nih.gov/tools/id-converter-api/) with **current, 
+        # suggested 'service_root' URL the 'standard' way. <=== NOTE USES SAME 
+        # PLACE, I'll try with PYODIDE, WHICH IS NOT SAME AS `pmc_id_converter` 
+        # uses at this time.
+        service_root_url = (
+            'https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/')
+        res = requests.get(service_root_url, params={'ids': 'PMC3531190',
+            'tool': 'my_tool',
+            'email': 'my_email@example.com',
+            'versions': 'no',
+            'format': 'json',}).json()
+        data = []
+        for record in res['records']:
+            if record.get('status') == 'error':
+                errmsg = record['errmsg']
+                _id = record.get('pmid') or record.get('pmcid') or record.get(
+                    'doi')
+                #context = Record(errmsg=errmsg, _id=_id)
+            else:
+                #context = Record(**record)
+                context = record
+            data += [context]
+        assert 23193287 == data[0]['pmid'], (
+            "The contact to the API with this `service_root_url` is not working as expected in Python.")
 
 # First check cli ability.
-def test_converter_for_humans_cli_working_as_expected():
+def test_converter_cli_working_as_expected_for_Pandas(tmp_path):
     # Check makes pandas and result as expected by converting pmc_id_converter result to Pandas as I worked out in https://github.com/fomightez/pmc_id_converter_demo-binder
-
-    # Check you can make a dictionary and result same as pmc_id_converter
-
-    # Check you can make json and result same as if pmc_id_converter result converted to json
+    # Read in converter result from saved pickled dataframe
     pass
+def test_converter_cli_working_as_expected_for_list_of_dictionaries(tmp_path):
+    # Check you can make a dictionary and result same as pmc_id_converter
+    # READ in PICKLED list of  DICTIONAries
+    pass
+expected_json_result_text = '''[
+  {"doi": "10.1007/s13205-018-1330-z", "pmcid": "PMC6039336", "pmid": 30003000, "requested-id": "30003000"},
+  {"doi": "10.1002/open.201800095", "pmcid": "PMC6031859", "pmid": 30003001, "requested-id": "30003001"},
+  {"doi": "10.1002/open.201800044", "pmcid": "PMC6031856", "pmid": 30003002, "requested-id": "30003002"}
+]'''
+# I was getting weird whitespace addded after commas on each line when defined `expected_json_result_text` with a docstring above!! This fixed it to now add spurious whitewpace that shouldn't be there!
+expected_json_result_text = (
+    '[\n'
+    '  {"doi": "10.1007/s13205-018-1330-z", "pmcid": "PMC6039336", "pmid": 30003000, "requested-id": "30003000"},\n'
+    '  {"doi": "10.1002/open.201800095", "pmcid": "PMC6031859", "pmid": 30003001, "requested-id": "30003001"},\n'
+    '  {"doi": "10.1002/open.201800044", "pmcid": "PMC6031856", "pmid": 30003002, "requested-id": "30003002"}\n'
+    ']'
+)
+def test_converter_cli_working_as_expected_for_json(tmp_path):
+    '''
+    Online JSON Validation tool: https://jsonlint.com/
+    '''
+    # Check you can make json and result similar as if pmc_id_converter result converted to json
+    #`pmc_idconv` does not actually make Valid JSON and so I will fix it so I can compare to 
+    # result it produces. `pmc_idconv` should make good content, jut not the exact valid format, so
+    # use the output to convert to Valid JSON and compare to that to check my 
+    # new script
+    pmc_idconv_cli_result = tmp_path / 'pmc_idconv_cli_result.json'
+    os.system(f'pmc_idconv 30003000 30003001 30003002 > {pmc_idconv_cli_result}')
+    pmc_idconv_cli_result_as_VALID_json = pmc_idconv_cli_result.read_text().replace('}','},') # start converting to Valid JSON
+    pmc_idconv_cli_result_as_VALID_json = pmc_idconv_cli_result_as_VALID_json.replace('{','  {') # convert to Valid JSON
+    pmc_idconv_cli_result_as_VALID_json = f"[\n{pmc_idconv_cli_result_as_VALID_json[:-2]}\n]"
+    #print(pmc_idconv_cli_result_as_VALID_json)
+    assert pmc_idconv_cli_result_as_VALID_json == expected_json_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.json` not ending up being processed into valid JSON expected.")
+    '''
+    os.system('pmc_idconv 30003000 30003001 30003002 current_result.txt') # SUBSTITUTE `pmc_idconv 30003000 30003001 30003002` with my script to test. TO DO!!!!
+    with open('current_result.txt', 'r') as myfile:
+        current_result_text=myfile.read()
+    assert current_result_text == pmc_idconv_cli_result_as_VALID_json, ("Result of `?????` is not matching JSON-formatted text expected from `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt`." )
+    '''
+
+expected_jsonl_result_text = (
+    '{"doi": "10.1007/s13205-018-1330-z", "pmcid": "PMC6039336", "pmid": 30003000, "requested-id": "30003000"}\n'
+    '{"doi": "10.1002/open.201800095", "pmcid": "PMC6031859", "pmid": 30003001, "requested-id": "30003001"}\n'
+    '{"doi": "10.1002/open.201800044", "pmcid": "PMC6031856", "pmid": 30003002, "requested-id": "30003002"}\n'
+)
+
+def test_converter_cli_working_as_expected_for_JSONL(tmp_path):
+    '''
+    >"JSONL (JSON Lines) or NDJSON (Newline Delimited JSON), where each line is a separate, independent JSON object."
+    See more about it at https://jsonlines.org/ where they even have a validator tool page.
+    '''
+    # Check you can make JSONL and result similar as if pmc_id_converter result? 
+    #`pmc_idconv` does not actually make Valid JSON, it makes JSONL. `pmc_idconv` should make good content, so
+    # use the output to make sure it is JSONL and compare to that to check my new script.
+    pmc_idconv_cli_result = tmp_path / 'pmc_idconv_cli_result.txt'
+    os.system(f'pmc_idconv 30003000 30003001 30003002 > {pmc_idconv_cli_result}')
+    pmc_idconv_cli_result_as_jsonl = pmc_idconv_cli_result.read_text()
+    assert pmc_idconv_cli_result_as_jsonl == expected_jsonl_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt` not generating JSONL expected.")
+    '''
+    os.system('pmc_idconv 30003000 30003001 30003002 current_result.txt') # SUBSTITUTE `pmc_idconv 30003000 30003001 30003002` with my script to test. TO DO!!!!
+    with open('current_result.txt', 'r') as myfile:
+        current_result_text=myfile.read()
+    assert current_result_text == pmc_idconv_cli_result_as_VALID_json, ("Result of `?????` is not matching JSON-formatted text expected from `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt`." )
+    '''
+
+
 
 # Now check when used as a function
-def test_converter_for_humans_cli_working_as_expected():
+def test_converter_function_working_as_expected():
     # Check makes pandas and result as expected by converting pmc_id_converter result to Pandas as I worked out in https://github.com/fomightez/pmc_id_converter_demo-binder
 
     # Check you can make a dictionary and result same as pmc_id_converter
@@ -199,130 +303,9 @@ def test_converter_for_humans_cli_working_as_expected():
 
 
 
-'''
-# This next test tests that a file with the proper name convention can be 
-# supplied as souce of input data instead of fetching PDB file header from 
-# Protein Data Bank
-def test_file_can_be_used_as_source(dir_2_put_test_files):  # Add the fixtures as parameters
-    # I added later the ability to supply a file as the source the header. This 
-    # should test that as it uses a PDB id code that does not exist and so the 
-    # only way it will run to work and produce anything is if it uses the file
-    # I supplied as source of header. (It cannot fall back to fetching & using 
-    # something from Protein Data Bank.) Since using content corresponding to 
-    # 1d66, output should look like what I expect for 1d66 output, which is 
-    # among the PDB id codes tested below, and so testing the content making 
-    # part of the script will get handled there but this will at least test 
-    # there is output file as expected if used file as input. In other words, as 
-    # written the test for prioritizing reading a file just makes sure output 
-    # of some sort made by script.
-    PDB_code_for_file_read_test = "4tSt" # "4tst is a useful PDB id for a non-existing structure"-https://proteopedia.org/wiki/index.php/Believe_It_or_Not#Notes & 
-    # https://proteopedia.org/wiki/index.php/4tst
-    suffix_4_results = "_missing_residue_details.html" # Has to match what 
-    # `missing_residue_detailer.py` has for this.
-    file_input_suffix = "_header4missing.txt" # Has to match what 
-    # `missing_residue_detailer.py` has for this.
-    file_used_as_input = PDB_code_for_file_read_test + file_input_suffix
-    output_expected = PDB_code_for_file_read_test.lower() + suffix_4_results
-    assert os.path.isfile(TEST_FILES_DIR + output_expected), \
-        f"The expected file ouput {dir_2_put_test_files + output_expected} made using {file_used_as_input} as input does not exist"
-    # the file used as input should also now be in the test files and have 1d66
-    # header as content. Next assert test it at least the file is there.
-    assert os.path.isfile(TEST_FILES_DIR + file_used_as_input), \
-        f"The file {file_used_as_input} does not seem to have been moved back to the test location?"
-    # FUTURE IMPROVEMENT: add when script more mature to see if content in `output_expected` matches HTML made by script for 1d66?
-
-
-# Get & Iterate on each pair and check if the text without HTML matches. Because
-# if that fails, surely the more detailed HTML will fail.
-def get_text_pairs_and_ids(directory):
-    # Print what files we find to debug
-    print(f"Looking in directory: {os.path.abspath(directory)}")
-    fgij_files = glob.glob(os.path.join(directory, "fgij_text_*.txt"))
-    print(f"Found fgij files: {fgij_files}")
-    
-    pairs_and_ids = []
-    for fgij_file in fgij_files:
-        # Extract ID from filename
-        id_part = os.path.basename(fgij_file).split('_')[-1].split('.')[0]
-        # Find matching fmrd file
-        fmrd_file = os.path.join(directory, f"fmrd_text_{id_part}.txt")
-        print(f"Looking for matching file: {fmrd_file}")
-        if os.path.exists(fmrd_file):
-            pairs_and_ids.append(((os.path.basename(fgij_file), 
-                                 os.path.basename(fmrd_file)), 
-                                id_part))
-    return pairs_and_ids
-
-
-# Get pairs and IDs from the correct directory
-#test_dir = "additional_nbs/tests" # I had hoped to avoid having this in multiple places, so let's see if this works: (IT does and so I don't know why cannot use those not fixtures to pass things. Maybe only fixtures allowed in tests?)
-from my_conftest_for_test_missing_residue_detailer import TEST_FILES_DIR
-test_dir = TEST_FILES_DIR
-pairs_and_ids = get_text_pairs_and_ids(test_dir)
-pairs, ids = zip(*pairs_and_ids)
-
-
-def generate_test_name(val):
-    """Generates a custom test ID for each test case.
-    Args:
-        int: interger for index position.
-    Returns:
-        A string representing the custom test ID.
-    """
-    return f"From {ids[val]}"
-
-#@pytest.mark.parametrize("pair_index", range(len(pairs)), ids=ids) # works to give PDB id code in brackets for end of name of function but I wanted to customize a bit further & so see next line
-@pytest.mark.parametrize("pair_index", range(len(pairs)), ids=generate_test_name)
-
-def test_text_files_match(pair_index, dir_2_put_test_files):
-    """Test that each pair of text files have identical content."""
-    file1, file2 = pairs[pair_index]
-    assert filecmp.cmp(dir_2_put_test_files + file1, dir_2_put_test_files + file2, shallow=False), \
-        f"Files {dir_2_put_test_files + file1} and {dir_2_put_test_files + file2} do not have identical content"
-'''
-# THIS EARLIER FORM WORKS BUT...
-# Note that it appears it cannot be simpler because I am using 
-# `text_pairs_to_process` from `conftest.py` and so cannot use in `@pytest.mark.parametrize()` direct because not yet define. This gets around that.
-#BUT DOESN'T REALLY WORK With `ids` to name the tests  by the PDB id and if I use something like `request.node.name = f"test_text_files_match[{ids[pair_index]}]"` in the test, I am still hard coding in number and order with `"pair_index", [0, 1]`. SO THIS 
-# IS FINE FOR TESTING SET UP INITIALLY BUT WILL LIMIT ME AS I HOPE TO ADD MORE
-# details from more PDB diles to test.
-'''
-@pytest.mark.parametrize("pair_index", [0, 1])
-def test_text_files_match(text_pairs_to_process, pair_index, dir_2_put_test_files):
-    """Test that each pair of text files have identical content."""
-    file1, file2 = text_pairs_to_process[pair_index]
-    assert filecmp.cmp(dir_2_put_test_files + file1, dir_2_put_test_files + file2, shallow=False), \
-        f"Files {dir_2_put_test_files + file1} and {dir_2_put_test_files + file2} do not have identical content"
-'''
-
-
 
 
 '''
-# Now up the level to checking if the HTML matches. Get & Iterate on each pair .
-def get_html_pairs_and_ids(directory):
-    # Print what files we find to debug
-    print(f"Looking in directory: {os.path.abspath(directory)}")
-    fgij_files = glob.glob(os.path.join(directory, "fgij_html_*.html"))
-    print(f"Found fgij files: {fgij_files}")
-    
-    pairs_and_ids = []
-    for fgij_file in fgij_files:
-        # Extract ID from filename
-        id_part = os.path.basename(fgij_file).split('_')[-1].split('.')[0]
-        # Find matching fmrd file
-        fmrd_file = os.path.join(directory, f"fmrd_html_{id_part}.html")
-        print(f"Looking for matching file: {fmrd_file}")
-        if os.path.exists(fmrd_file):
-            pairs_and_ids.append(((os.path.basename(fgij_file), 
-                                 os.path.basename(fmrd_file)), 
-                                id_part))
-    return pairs_and_ids
-
-# Get pairs and IDs from the correct directory
-hpairs_and_ids = get_html_pairs_and_ids(test_dir)
-hpairs, hids = zip(*hpairs_and_ids)
-
 #@pytest.mark.parametrize("pair_index", range(len(pairs)), ids=hids) # works to give PDB id code in brackets for end of name of function but I wanted to customize a bit further & so see next line
 @pytest.mark.parametrize("pair_index", range(len(pairs)), ids=generate_test_name)
 def test_html_files_match(pair_index, dir_2_put_test_files):

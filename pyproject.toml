@@ -1,7 +1,7 @@
 [project]
-name = "my-package"
+name = "PMC-ID-Converter-for-humans"
 version = "0.1.0"
-description = "Add your description here"
+description = "Simple library for using the PubMed Central ID Convert API for dealing biomedical and scientific literature."
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = []
