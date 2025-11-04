@@ -10,7 +10,8 @@
 #
 #
 # Dependencies beyond the mostly standard libraries/modules:
-# ????
+# uv
+# pandas
 #
 #
 
@@ -19,7 +20,7 @@
 # Example,
 # Enter on the command line of your terminal, the line
 #-----------------------------------
-# sheperds_all_list_combinations_thru_find_overlap_in_list.py list1.txt list2.txt list3.txt list4.txt list5.txt
+# uv run python -c "from PMC_ID_Converter_for_humans import PMC_id_convert" > testing_better.txt
 #-----------------------------------
 #
 # To use via Python:
@@ -84,6 +85,8 @@ expected_jsonl_result_text = (
     '{"doi": "10.1002/open.201800095", "pmcid": "PMC6031859", "pmid": 30003001, "requested-id": "30003001"}\n'
     '{"doi": "10.1002/open.201800044", "pmcid": "PMC6031856", "pmid": 30003002, "requested-id": "30003002"}\n'
 )
- input_text_filepath = sys.argv[1]
- def PMC_id_convert():
+if len(sys.argv) > 1:
+    input_text_filepath = sys.argv[1]
+def PMC_id_convert():
     print(expected_jsonl_result_text)
+PMC_id_convert()
