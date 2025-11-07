@@ -4,7 +4,11 @@ version = "0.1.0"
 description = "Simple library for using the PubMed Central ID Convert API for dealing biomedical and scientific literature."
 readme = "README.md"
 requires-python = ">=3.10"
-dependencies = []
+dependencies = ['requests','pandas']
+
+# Next two lines add CLI entrypoint so I can use `uv pip install -e .` and then command line command during development and later users can use `pip install PMC-ID-Converter-for-humans` (or poetry or conda or whatever they normally use) after build and publish
+[project.scripts]
+PMC_id_convert = "PMC_ID_Converter_for_humans.core:main"
 
 [build-system]
 requires = ["hatchling"]
