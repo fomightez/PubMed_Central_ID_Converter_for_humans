@@ -242,7 +242,8 @@ def test_converter_cli_working_as_expected_for_json(tmp_path):
     #`pmc_idconv` does not actually make Valid JSON and so I will fix it so I can compare to 
     # result it produces. `pmc_idconv` should make good content, jut not the exact valid format, so
     # use the output to convert to Valid JSON and compare to that to check my 
-    # new script
+    # new script.
+    # NOTE THAT I DO THIS A MORE BRUTEFORCE STRING conversion route HERE, which I think is probably good as it will make more likely to catch errors that may come up in the `json` package that the script relies on for this conversion. So in a way, each will check the other & end up making things more robust because they are more orthologous than doing the conversion the same way.
     pmc_idconv_cli_result = tmp_path / 'pmc_idconv_cli_result.json'
     os.system(f'pmc_idconv 30003000 30003001 30003002 > {pmc_idconv_cli_result}')
     pmc_idconv_cli_result_as_VALID_json = pmc_idconv_cli_result.read_text().replace('}','},') # start converting to Valid JSON
@@ -279,7 +280,7 @@ def test_converter_cli_working_as_expected_for_JSONL(tmp_path):
     # Now that have made JSONL using pmc_idconv, try my script & test by comparing result
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_result.txt'
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > {PMC_ID_Converter_for_humans_cli_result}')
-    assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_jsonl, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSON-formatted text expected from `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt`." )
+    assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_jsonl, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSONL-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > pmc_idconv_cli_result.txt`." )
 
 
 

@@ -1,6 +1,6 @@
 #!/usr/bin/env python
 # PMC_ID_Converter_for_humans by Wayne Decatur
-# ver 0.1.0
+__version__ = '0.1.0'
 #
 #*******************************************************************************
 # PubMed_Central_ID_Converter_for_humans: PubMed API use for humans
@@ -9,7 +9,7 @@
 # Summary of Key Features:
 # - Control format of results: Python dictionary, Pandas dataframe, or JSON/
 #   JSONL text.
-# - It is Pyodide/JupyterLite compatible.
+# - It is Pyodide/JupyterLite compatible. (WASM-based Python compatible!)
 ##Features##
 #A Python-based library for using the PubMed Central ID Convert API for dealing 
 # biomedical and scientific literature in modern Python/Jupyter ecosystems.  
@@ -116,6 +116,7 @@
 
 import sys
 import os
+from pathlib import Path
 import argparse
 import requests
 import json
@@ -141,6 +142,56 @@ expected_jsonl_result_text = (
 #    input_text_filepath = sys.argv[1]
 
 
+
+
+
+
+###---------------------------HELPER FUNCTIONS-------------------------------###
+
+
+
+###------------------HELPER FUNCTIONS TO HANDLE STORING EMAIL----------------###
+def get_config_file():
+    """Get path to config file in user's home directory"""
+    config_dir = Path.home() / '.pmc_id_converter'
+    config_dir.mkdir(exist_ok=True)
+    return config_dir / 'config.json'
+
+def load_email():
+    """Load saved email from config file"""
+    config_file = get_config_file()
+    if config_file.exists():
+        with open(config_file, 'r') as f:
+            config = json.load(f)
+            return config.get('email')
+    return None
+
+def save_email(email):
+    """Save email to config file"""
+    config_file = get_config_file()
+    with open(config_file, 'w') as f:
+        json.dump({'email': email}, f)
+###----------END OF HELPER FUNCTIONS TO HANDLE STORING EMAIL-----------------###
+
+
+###--------------------------END OF HELPER FUNCTIONS-------------------------###
+###--------------------------END OF HELPER FUNCTIONS-------------------------###
+
+
+
+
+
+
+
+
+
+
+
+
+#*******************************************************************************
+###------------------------'main' function of script-------------------------###
+
+
 def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
     tool='PMC_ID_Converter_for_humans'
     versions='no'
@@ -164,7 +215,15 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
 
 
     # Found this `if sys.platform == 'emscripten'` way of checking if running in 
-    # WASM / pyodide situation by searching GitHub for 'pyodide'.
+    # WASM / pyodide situation by searching GitHub for 'pyodide'. Examples:
+    # - https://github.com/mrirecon/bart
+    # - https://github.com/twardoch/jiter-pupy 
+    # - https://github.com/pygame-web/archives
+    # Then looking around more I found that is the first suggestion in the 
+    # Pyodide documentation at 
+    # https://pyodide.org/en/latest/usage/faq.html#how-to-detect-that-code-is-run-with-pyodide -- "At run time, you
+    # can check if Python is built with Emscripten (which is the case for 
+    # Pyodide)"
     if sys.platform == 'emscripten':
         # Code that will work in Pyodide/JupyterLite situations to communicate 
         # with the API where things not as simple in late 2025.
@@ -221,16 +280,32 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         #return data # FOR TESTING/DEVELOPMENT, STOP HERE. OTHERWISE FORMAT OUTPUT!
     # Pandas as default
     if outform == 'jsonl':
-        # this form is supposed to be good for streaming and for some reason seemed close to default for suqingdong's pmc_id_converter (pmc_idconv on command line) at https://github.com/suqingdong/pmc_id_converter 
+        # this form is supposed to be good for streaming and for some reason is 
+        # the default for output from suqingdong's pmc_id_converter (pmc_idconv 
+        # on command line) at https://github.com/suqingdong/pmc_id_converter 
+        '''
+        >"JSONL (JSON Lines) or NDJSON (Newline Delimited JSON), where each line is a separate, independent JSON object."
+        See more about it at https://jsonlines.org/ where they even have a validator tool page.
+        '''
         #converted_jsonl = '\n'.join(data)
         #converted_jsonl = '\n'.join([str(d) for d in data])
         converted_jsonl = '\n'.join([json.dumps(d) for d in data])
         return converted_jsonl
     elif outform == 'json':
-        pass
-    elif outform == 'dictionary':
-        # Make a list of Python dictionaries and save in pickle/serialized form to be read back in to Python
-        pass
+        # Make actual valid JSON from the list of dictionaries returned by API
+        '''
+        Online JSON Validation tool: https://jsonlint.com/
+        '''
+        converted_json = json.dumps(data, indent=2) # want JSON with 2 spaces 
+        # for indentation
+        return converted_json
+    elif outform == 'dictionaries':
+        # Make a list of Python dictionaries and save in pickle/serialized form
+        # to be read back in to Python.
+        # No conversion actually needed here because this is the basic form the 
+        # API returns -- a list of dictionaries with each dictionary 
+        # corresponding to the individual queries
+        return data
     else:
         # Make a Pandas dataframe
         import pandas as pd
@@ -238,7 +313,10 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         #records_of_query_results = API.idconv(query_ids)
         #records_of_query_results_data = [x.data for x in data] # make a list of the results dicts
         df = pd.DataFrame.from_records(data)
-        df['pmid'] = df['pmid'].apply(lambda x: str(int(x)) if pd.notna(x) else np.nan) # Don't want the pmid column values becoming floats/integer; however, do want the NaN staying that way & `Int64` helps with that
+        df['pmid'] = df['pmid'].apply(
+            lambda x: str(int(x)) if pd.notna(x) else np.nan) # Don't want the 
+        # pmid column values becoming floats/integer; however, do want the NaN 
+        # staying that way & `Int64` helps with that.
         df.reset_index(drop=True) # if any removed, need to reset the index
         df.to_csv('test_out.csv',index = False)
         df.to_pickle('test_out.pkl')
@@ -252,7 +330,16 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         "has been saved as a file in a manner where other "
         "Python programs can access it (pickled form).\n"
         "RESULTING DATAFRAME is stored as ==> '{}'.pkl".format(df_save_as_name ))
-    return data
+    #return data
+    return df
+#*******************************************************************************
+###-**********************END MAIN FUNCTION OF SCRIPT***********************-###
+#*******************************************************************************
+
+
+
+
+
 
 
 
@@ -260,10 +347,24 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
 
 def main():
     import argparse
+
+    ''' DON'T ACTUALLY NEED THIS HERE BECAUSE `nargs` USE FOR IDS HANDLING will cause it to print usage if none added but if want to customize handling can put this back.
+    # Check if no arguments provided & print usage if now
+    if len(sys.argv) == 1:
+        parser = argparse.ArgumentParser()
+        parser.print_help()
+        sys.exit(1)
+    '''
+
     parser = argparse.ArgumentParser()
-    parser.add_argument('ids', nargs='+', help='One or more PMC IDs to convert (space-separated)')
+    parser.add_argument('--version', '-v', action='version', version=f'%(prog)s {__version__}')
+    parser.add_argument('ids', nargs='+', help='One or more IDs to convert (space-separated)')
     parser.add_argument('--email', default='NoneSetYet', help='Email address')
     parser.add_argument('--outform', default='pandas', help='Output Format')
+    parser.add_argument('--outform', 
+                        choices=['pandas', 'json', 'jsonl', 'dictionaries'],
+                        default='pandas',
+                        help='Output Format (default: pandas)')
     args = parser.parse_args()
     
     # Join the IDs with commas for the API
