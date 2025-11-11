@@ -12,6 +12,8 @@ import glob
 import filecmp
 import urllib
 import requests
+import pandas as pd
+import numpy as np
 
 # Run this file while working directory is at root,
 # like `pytest -v tests/test_Converter.py` 
@@ -212,21 +214,45 @@ def test_can_get_data_from_service_root_API_whether_Pyodide_or_Python():
         assert 23193287 == data[0]['pmid'], (
             "The contact to the API with this `service_root_url` is not working as expected in Python.")
 
-# First check cli ability.
+# First check CLI ability of my script.
+# -----------------------------------------------------------------------------#
+pandas_df_expected = '''                         doi       pmcid      pmid requested-id
+0  10.1007/s13205-018-1330-z  PMC6039336  30003000     30003000
+1     10.1002/open.201800095  PMC6031859  30003001     30003001
+2     10.1002/open.201800044  PMC6031856  30003002     30003002'''
 def test_converter_cli_working_as_expected_for_Pandas(tmp_path):
     # Check makes pandas and result as expected by converting pmc_id_converter result to Pandas as I worked out in https://github.com/fomightez/pmc_id_converter_demo-binder
+    from pmc_id_converter import API
+    query_ids = '30003000 30003001 30003002'
+    records_of_query_results = API.idconv(query_ids)
+    records_of_query_results_data = [x.data for x in records_of_query_results] # make a list of the results dicts
+    pmc_id_converter_df = pd.DataFrame.from_records(records_of_query_results_data)
+    pmc_id_converter_df['pmid'] = pmc_id_converter_df['pmid'].apply(lambda x: str(int(x)) if pd.notna(x) else np.nan) # Don't want the pmid column values becoming floats/integer; however, do want the NaN staying that way & `Int64` helps with that
+    #print(pmc_id_converter_df)
+    #print(pandas_df_expected)
+    assert pmc_id_converter_df.to_string() == pandas_df_expected, ("Result of using suqingdong's pmc_id_converter and then converting the result to a dataframe does not make the expected dataframe content.")
+    # Now that established suqingdong's pmc_id_converter can be used to make an
+    # expected dataframe, set up things to next check my script will make same.
+    pmc_idconv_pandas_result_filepath = tmp_path / 'pmc_idconv_pandas_result.txt'
+    with open(pmc_idconv_pandas_result_filepath, 'w') as f:
+        f.write(pmc_id_converter_df.to_string())
     # Read in converter result from saved pickled dataframe
-    pass
+    PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_result.txt'
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas > {PMC_ID_Converter_for_humans_cli_result}')
+    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_pandas_result_filepath.read_text(), ("Result of using PMC_ID_Converter_for_humans on command line is not matching Pandas dataframe expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas > pmc_idconv_cli_result.txt` equivalent." ) # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use reditect to make a file.
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings > {PMC_ID_Converter_for_humans_cli_result}')
+    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_pandas_result_filepath.read_text(), ("Result of using PMC_ID_Converter_for_humans on command line is not matching Pandas dataframe expected without `outform` being set as 'pandas'." ) # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use reditect to make a file.
 def test_converter_cli_working_as_expected_for_list_of_dictionaries(tmp_path):
     # Check you can make a dictionary and result same as pmc_id_converter
     # READ in PICKLED list of  DICTIONAries
     pass
+# this first version of `expected_json_result_text` doesn't get used, see after it about docstring issue.
 expected_json_result_text = '''[
   {"doi": "10.1007/s13205-018-1330-z", "pmcid": "PMC6039336", "pmid": 30003000, "requested-id": "30003000"},
   {"doi": "10.1002/open.201800095", "pmcid": "PMC6031859", "pmid": 30003001, "requested-id": "30003001"},
   {"doi": "10.1002/open.201800044", "pmcid": "PMC6031856", "pmid": 30003002, "requested-id": "30003002"}
 ]'''
-# I was getting weird whitespace addded after commas on each line when defined `expected_json_result_text` with a docstring above!! This fixed it to now add spurious whitewpace that shouldn't be there!
+# I was getting weird whitespace addded after commas on each line when defined `expected_json_result_text` with a docstring above!! This fixed it to now add spurious whitespace that shouldn't be there!
 expected_json_result_text = (
     '[\n'
     '  {"doi": "10.1007/s13205-018-1330-z", "pmcid": "PMC6039336", "pmid": 30003000, "requested-id": "30003000"},\n'
@@ -250,15 +276,13 @@ def test_converter_cli_working_as_expected_for_json(tmp_path):
     pmc_idconv_cli_result_as_VALID_json = pmc_idconv_cli_result_as_VALID_json.replace('{','  {') # convert to Valid JSON
     pmc_idconv_cli_result_as_VALID_json = f"[\n{pmc_idconv_cli_result_as_VALID_json[:-2]}\n]"
     #print(pmc_idconv_cli_result_as_VALID_json)
-    assert pmc_idconv_cli_result_as_VALID_json == expected_json_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.json` not ending up being processed into valid JSON expected.")
+    assert pmc_idconv_cli_result_as_VALID_json == expected_json_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.json` equivalent not ending up being processed into valid JSON expected.")
     # Now that have made valid JSON using pmc_idconv, try my script & test by comparing result
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_json_result.txt'
-    os.system(f'uv run python -c "from PMC_ID_Converter_for_humans import PMC_id_convert" > {PMC_ID_Converter_for_humans_cli_result}')
-    assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_VALID_json, ("Result of `?????` is not matching JSON-formatted text expected from `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt`." )
-    '''
-    os.system('pmc_idconv 30003000 30003001 30003002 current_result.txt') # SUBSTITUTE `pmc_idconv 30003000 30003001 30003002` with my script to test. TO DO!!!!
-    assert current_result_text == pmc_idconv_cli_result_as_VALID_json, ("Result of `?????` is not matching JSON-formatted text expected from `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt`." )
-    '''
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform json > {PMC_ID_Converter_for_humans_cli_result}')
+    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_cli_result_as_VALID_json, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSON-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform json > pmc_idconv_cli_result.txt` equivalent." ) # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use reditect to make a file.
+
+
 
 expected_jsonl_result_text = (
     '{"doi": "10.1007/s13205-018-1330-z", "pmcid": "PMC6039336", "pmid": 30003000, "requested-id": "30003000"}\n'
@@ -276,11 +300,12 @@ def test_converter_cli_working_as_expected_for_JSONL(tmp_path):
     pmc_idconv_cli_result = tmp_path / 'pmc_idconv_cli_result.txt'
     os.system(f'pmc_idconv 30003000 30003001 30003002 > {pmc_idconv_cli_result}')
     pmc_idconv_cli_result_as_jsonl = pmc_idconv_cli_result.read_text()
-    assert pmc_idconv_cli_result_as_jsonl == expected_jsonl_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt` not generating JSONL expected.")
+    assert pmc_idconv_cli_result_as_jsonl == expected_jsonl_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt` equivalent not generating JSONL expected.")
     # Now that have made JSONL using pmc_idconv, try my script & test by comparing result
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_result.txt'
+    os.system('uv pip install -e .')
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > {PMC_ID_Converter_for_humans_cli_result}')
-    assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_jsonl, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSONL-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > pmc_idconv_cli_result.txt`." )
+    assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_jsonl, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSONL-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > pmc_idconv_cli_result.txt` equivalent." )
 
 
 
@@ -295,19 +320,3 @@ def test_converter_function_working_as_expected():
 
 
 
-
-
-
-
-
-
-
-'''
-#@pytest.mark.parametrize("pair_index", range(len(pairs)), ids=hids) # works to give PDB id code in brackets for end of name of function but I wanted to customize a bit further & so see next line
-@pytest.mark.parametrize("pair_index", range(len(pairs)), ids=generate_test_name)
-def test_html_files_match(pair_index, dir_2_put_test_files):
-    """Test that each pair of text files have identical content."""
-    file1, file2 = pairs[pair_index]
-    assert filecmp.cmp(dir_2_put_test_files + file1, dir_2_put_test_files + file2, shallow=False), \
-        f"Files {dir_2_put_test_files + file1} and {dir_2_put_test_files + file2} do not have identical content"
-'''

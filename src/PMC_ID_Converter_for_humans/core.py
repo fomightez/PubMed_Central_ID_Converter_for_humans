@@ -32,6 +32,7 @@ __version__ = '0.1.0'
 # 
 # 
 # To do:
+# - add to https://github.com/fomightez/pmc_id_converter_demo-binder pointing users at better resource!
 # - remove showing you can get away with `--email test_settings` from 'CURRENT JUPYTERLITE TEST' because want to push users to use email.
 # - change command lines to have `'<your_email_here>'` in all more standard command line
 # examples, but somewhere else note how I tested in terminal while developping early, which current examples show!
@@ -305,8 +306,6 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         json_lines = [json.dumps(item, separators=(', ', ': ')) for item in data]
         # Combine into an array with proper indentation
         converted_json = '[\n  ' + ',\n  '.join(json_lines) + '\n]'
-        print("Length got:", len(converted_json))
-        print("Got repr:", repr(converted_json))
         return converted_json
     elif outform == 'dictionaries':
         # Make a list of Python dictionaries and save in pickle/serialized form
