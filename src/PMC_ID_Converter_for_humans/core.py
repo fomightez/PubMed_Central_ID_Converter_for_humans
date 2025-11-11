@@ -3,32 +3,77 @@
 # ver 0.1.0
 #
 #*******************************************************************************
-# 
-#
-#
-#
+# PubMed_Central_ID_Converter_for_humans: PubMed API use for humans
+# A simple library for using the PubMed Central ID Convert API for dealing 
+# biomedical and scientific literature in modern Python/Jupyter ecosystems.  
+# Summary of Key Features:
+# - Control format of results: Python dictionary, Pandas dataframe, or JSON/
+#   JSONL text.
+# - It is Pyodide/JupyterLite compatible.
+##Features##
+#A Python-based library for using the PubMed Central ID Convert API for dealing 
+# biomedical and scientific literature in modern Python/Jupyter ecosystems.  
+# Use the library to get PubMed Central identifiers, PubMed identifiers (PMIDs), 
+# and DOI identifiers for scientific literature.  
+# In an opionated choice, the default format for the results is a Pandas 
+# dataframe; however, this can be adjusted via flag/argument settings.  
+# It is largely kernel agnostic as far as Python goes, which means you can use 
+# it in JupyterLite as well as in more standard Jupyter where a typical 
+# ipykernel is involved. At present, command line use of the library is not 
+# compatible with Pyodide/JupyterLite. Command line use is fully allowed in a 
+# typical system with a POSIX system shell (Bash/zsh-type) where standard Python 
+# is installed.   
 #
 #
 # Dependencies beyond the mostly standard libraries/modules:
 # uv
 # pandas
+# 
+# 
+# 
+# To do:
+# - remove showing you can get away with `--email test_settings` from 'CURRENT JUPYTERLITE TEST' because want to push users to use email.
+# - change command lines to have `'<your_email_here>'` in all more standard command line
+# examples, but somewhere else note how I tested in terminal while developping early, which current examples show!
+# - I plan to add other arguments like `format` so expand early examples and 
+# future ones to include maybe some of those, too.
 #
-#
-
 #
 # TO RUN:
 # Example,
 # Enter on the command line of your terminal, the line
 #-----------------------------------
-# uv run python -c "from PMC_ID_Converter_for_humans import PMC_id_convert" > testing_better.txt
+# uv run python -c "from PMC_ID_Converter_for_humans import PMC_id_convert; print(PMC_id_convert('PMC3531190', email='test_settings'))" > testing_better.txt
 #-----------------------------------
+# -or-
+# uv pip install -e .     # LATER THIS WILL BE `pip install PMC-ID-Converter-for-humans` for general users
+# PMC_id_convert PMC3531190 --email test@example.com > testing_better_still.txt
+# -OR-
+# PMC_id_convert PMC3531190 PMC3531191 --email test_settings > testing_multiples.txt
+#
 #
 # To use via Python:
 # from PMC_ID_Converter_for_humans import PMC_id_convert
-# PMC_id_convert()
+# PMC_id_convert('PMC3531190', email = '<your_email_here>')
+# 
+#
+#
+# CURRENT JUPYTERLITE TEST along the the line command line use -- closest possible there:
+# Save this as `core_test.py` and run `%pip install requests` in a cell and 
+# then in a new cell run the following command:
+# `%run core_test.py PMC3531190 --email test_settings`
+# -or to show works with multiple ids:
+# `%run core_test --email test_settings PMC3531190 PMC3531191`
+# -OR- 
+# `%run core_test PMC3531190 PMC3531191 --email test_settings`
+# COMPARE THE RESULTS OF THOSE TO RUNNING `PMC_id_convert PMC3531190 --email test@example.com` and `PMC_id_convert PMC3531190 PMC3531191 --email test_settings`, respectively
 #
 #*******************************************************************************
 #
+
+
+
+
 
 
 #*******************************************************************************
@@ -62,6 +107,9 @@
 
 
 
+
+
+
 #*******************************************************************************
 #*******************************************************************************
 ###DO NOT EDIT BELOW HERE - ENTER VALUES ABOVE###
@@ -69,6 +117,8 @@
 import sys
 import os
 import argparse
+import requests
+import json
 
 
 
@@ -85,9 +135,142 @@ expected_jsonl_result_text = (
     '{"doi": "10.1002/open.201800095", "pmcid": "PMC6031859", "pmid": 30003001, "requested-id": "30003001"}\n'
     '{"doi": "10.1002/open.201800044", "pmcid": "PMC6031856", "pmid": 30003002, "requested-id": "30003002"}\n'
 )
-if len(sys.argv) > 1:
-    input_text_filepath = sys.argv[1]
-def PMC_id_convert():
-    print(expected_jsonl_result_text[:-1]) # was adding one too many newlines, 
-    # so leaving off the last character, makes it match expected
-PMC_id_convert()
+# This `if len(sys.argv) > 1:` and next line was also for when testing early 
+# form, along with `print(expected_jsonl_result_text[:-1])` below
+#if len(sys.argv) > 1:
+#    input_text_filepath = sys.argv[1]
+
+
+def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
+    tool='PMC_ID_Converter_for_humans'
+    versions='no'
+    # print(expected_jsonl_result_text[:-1]) # was adding one too many newlines, 
+    # so leaving off the last character, makes it match expected # ONLY USED IN 
+    # VERY EARLY DEVELOPMENT BEFORE ADDED CONNECTING TO API (also used with `len(sys.argv) > 1:` above)
+
+    if email == 'test_settings':
+        email='my_email@example.com'
+    elif email == 'NoneSetYet':
+        # get email set
+        raise SystemExit(
+            "You need to set your email in the call the to command or in the "\
+            "code used to call the function. \n**EXITING !!**.\n")
+    params={'ids': ids,
+        'tool': tool,
+        'email': email,
+        'versions': versions,
+        'format': 'json',}
+
+
+
+    # Found this `if sys.platform == 'emscripten'` way of checking if running in 
+    # WASM / pyodide situation by searching GitHub for 'pyodide'.
+    if sys.platform == 'emscripten':
+        # Code that will work in Pyodide/JupyterLite situations to communicate 
+        # with the API where things not as simple in late 2025.
+        
+        using_pyodide = True
+        from urllib.parse import quote
+
+        return_format = params['format']
+        # Build the API URL with all required parameters
+        api_url = f'https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/?ids={ids}&format={return_format}&tool={tool}&email={email}'
+        
+        # Use CORS proxy
+        proxy_url = f'https://api.allorigins.win/raw?url={quote(api_url, safe="")}'
+        
+        #print(f"Requesting: {api_url}")
+        
+        # Make request with requests package
+        res = requests.get(proxy_url)
+        res.raise_for_status()
+        
+        # Check if we got HTML (error) instead of expected format
+        if res.text.strip().startswith('<'):
+            raise Exception("API returned HTML instead of expected format. Check your parameters.")
+        
+        data = []
+        for record in res.json()['records']:
+            if record.get('status') == 'error':
+                errmsg = record['errmsg']
+                _id = record.get('pmid') or record.get('pmcid') or record.get(
+                    'doi')
+                #context = Record(errmsg=errmsg, _id=_id)
+            else:
+                #context = Record(**record) # I don't want to complicate with a class
+                context = record
+            data += [context]
+        #return data # FOR TESTING/DEVELOPMENT, STOP HERE. OTHERWISE FORMAT OUTPUT!
+    else:
+        # Code that will work with typical versions of Python to communicate
+        # with API.
+        api_service_root_url = (
+                'https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/')
+        res = requests.get(api_service_root_url, params=params).json()
+        data = []
+        for record in res['records']:
+            if record.get('status') == 'error':
+                errmsg = record['errmsg']
+                _id = record.get('pmid') or record.get('pmcid') or record.get(
+                    'doi')
+                #context = Record(errmsg=errmsg, _id=_id)
+            else:
+                #context = Record(**record) # I don't want to complicate with a class
+                context = record
+            data += [context]
+        #return data # FOR TESTING/DEVELOPMENT, STOP HERE. OTHERWISE FORMAT OUTPUT!
+    # Pandas as default
+    if outform == 'jsonl':
+        # this form is supposed to be good for streaming and for some reason seemed close to default for suqingdong's pmc_id_converter (pmc_idconv on command line) at https://github.com/suqingdong/pmc_id_converter 
+        #converted_jsonl = '\n'.join(data)
+        #converted_jsonl = '\n'.join([str(d) for d in data])
+        converted_jsonl = '\n'.join([json.dumps(d) for d in data])
+        return converted_jsonl
+    elif outform == 'json':
+        pass
+    elif outform == 'dictionary':
+        # Make a list of Python dictionaries and save in pickle/serialized form to be read back in to Python
+        pass
+    else:
+        # Make a Pandas dataframe
+        import pandas as pd
+        import numpy as np
+        #records_of_query_results = API.idconv(query_ids)
+        #records_of_query_results_data = [x.data for x in data] # make a list of the results dicts
+        df = pd.DataFrame.from_records(data)
+        df['pmid'] = df['pmid'].apply(lambda x: str(int(x)) if pd.notna(x) else np.nan) # Don't want the pmid column values becoming floats/integer; however, do want the NaN staying that way & `Int64` helps with that
+        df.reset_index(drop=True) # if any removed, need to reset the index
+        df.to_csv('test_out.csv',index = False)
+        df.to_pickle('test_out.pkl')
+        # Let user know
+        df_save_as_name = 'output_as_pandas' 
+        notify_of_csv_string = ("A dataframe of the data "
+        "has been saved as a file in a manner where other "
+        "Python programs can access it (pickled form).\n"
+        "RESULTING DATAFRAME is stored as ==> '{}.csv'".format(df_save_as_name ))
+        notify_pickling_string = ("A dataframe of the data "
+        "has been saved as a file in a manner where other "
+        "Python programs can access it (pickled form).\n"
+        "RESULTING DATAFRAME is stored as ==> '{}'.pkl".format(df_save_as_name ))
+    return data
+
+
+
+
+
+def main():
+    import argparse
+    parser = argparse.ArgumentParser()
+    parser.add_argument('ids', nargs='+', help='One or more PMC IDs to convert (space-separated)')
+    parser.add_argument('--email', default='NoneSetYet', help='Email address')
+    parser.add_argument('--outform', default='pandas', help='Output Format')
+    args = parser.parse_args()
+    
+    # Join the IDs with commas for the API
+    ids_string = ','.join(args.ids)
+    
+    result = PMC_id_convert(ids_string, email=args.email, outform = args.outform)
+    print(result)
+
+if __name__ == "__main__":
+    main()

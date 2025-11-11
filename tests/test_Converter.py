@@ -2,9 +2,7 @@
 # `test_Converter.py` by Wayne Decatur
 # This is to run tests for `PubMed_Central_ID_Converter_for_humans`.
 #**-------------------------------------------------------------------------**#
-# this goes in same folder with ????????????????????
-# `my_conftest_for_test_missing_residue_detailer.py` & `conftest.py` that will 
-# be for  testing `missing_residue_detailer.py`, which needs to be in root 
+# this goes in 'tests'
 import pytest
 import os
 import sys
@@ -19,7 +17,7 @@ import requests
 # like `pytest -v tests/test_Converter.py` 
 # -or-
 # if want printing from the pytests tests
-# like `pytest -s -v tests/test_Converter.py` 
+# like `pytest -s -vv tests/test_Converter.py` 
 
 # Compares the results of my `PubMed_Central_ID_Converter_for_humans.py` to the 
 # results from pmc-id-converter (https://pypi.org/project/pmc-id-converter/) as
@@ -252,10 +250,12 @@ def test_converter_cli_working_as_expected_for_json(tmp_path):
     pmc_idconv_cli_result_as_VALID_json = f"[\n{pmc_idconv_cli_result_as_VALID_json[:-2]}\n]"
     #print(pmc_idconv_cli_result_as_VALID_json)
     assert pmc_idconv_cli_result_as_VALID_json == expected_json_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.json` not ending up being processed into valid JSON expected.")
+    # Now that have made valid JSON using pmc_idconv, try my script & test by comparing result
+    PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_json_result.txt'
+    os.system(f'uv run python -c "from PMC_ID_Converter_for_humans import PMC_id_convert" > {PMC_ID_Converter_for_humans_cli_result}')
+    assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_VALID_json, ("Result of `?????` is not matching JSON-formatted text expected from `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt`." )
     '''
     os.system('pmc_idconv 30003000 30003001 30003002 current_result.txt') # SUBSTITUTE `pmc_idconv 30003000 30003001 30003002` with my script to test. TO DO!!!!
-    with open('current_result.txt', 'r') as myfile:
-        current_result_text=myfile.read()
     assert current_result_text == pmc_idconv_cli_result_as_VALID_json, ("Result of `?????` is not matching JSON-formatted text expected from `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt`." )
     '''
 
@@ -264,7 +264,6 @@ expected_jsonl_result_text = (
     '{"doi": "10.1002/open.201800095", "pmcid": "PMC6031859", "pmid": 30003001, "requested-id": "30003001"}\n'
     '{"doi": "10.1002/open.201800044", "pmcid": "PMC6031856", "pmid": 30003002, "requested-id": "30003002"}\n'
 )
-
 def test_converter_cli_working_as_expected_for_JSONL(tmp_path):
     '''
     >"JSONL (JSON Lines) or NDJSON (Newline Delimited JSON), where each line is a separate, independent JSON object."
@@ -277,12 +276,10 @@ def test_converter_cli_working_as_expected_for_JSONL(tmp_path):
     os.system(f'pmc_idconv 30003000 30003001 30003002 > {pmc_idconv_cli_result}')
     pmc_idconv_cli_result_as_jsonl = pmc_idconv_cli_result.read_text()
     assert pmc_idconv_cli_result_as_jsonl == expected_jsonl_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt` not generating JSONL expected.")
-    '''
-    os.system('pmc_idconv 30003000 30003001 30003002 current_result.txt') # SUBSTITUTE `pmc_idconv 30003000 30003001 30003002` with my script to test. TO DO!!!!
-    with open('current_result.txt', 'r') as myfile:
-        current_result_text=myfile.read()
-    assert current_result_text == pmc_idconv_cli_result_as_VALID_json, ("Result of `?????` is not matching JSON-formatted text expected from `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt`." )
-    '''
+    # Now that have made JSONL using pmc_idconv, try my script & test by comparing result
+    PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_result.txt'
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > {PMC_ID_Converter_for_humans_cli_result}')
+    assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_jsonl, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSON-formatted text expected from `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt`." )
 
 
 
