@@ -198,6 +198,7 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
     # print(expected_jsonl_result_text[:-1]) # was adding one too many newlines, 
     # so leaving off the last character, makes it match expected # ONLY USED IN 
     # VERY EARLY DEVELOPMENT BEFORE ADDED CONNECTING TO API (also used with `len(sys.argv) > 1:` above)
+    # LATER FOLLOW-UP. I think I know issue. Often when you redirect output to a file with `>` many systems add a newline. Later for pytest I was using things like `assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n')`. Maybe `.rstrip('\n')` coukd have been useful here. 
 
     if email == 'test_settings':
         email='my_email@example.com'
@@ -296,8 +297,16 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         '''
         Online JSON Validation tool: https://jsonlint.com/
         '''
-        converted_json = json.dumps(data, indent=2) # want JSON with 2 spaces 
-        # for indentation
+        #converted_json = json.dumps(data, indent=2) # want JSON with 2 spaces 
+        # for indentation # THIS ORIGINAL ATTEMOPT GAVE VALID JSON BUT WITH each
+        # key pair on a separate line and I want them all on one line to save 
+        # files from getting super long when many identifiers used in query.S 
+        # Format each object as a single line with space after commas
+        json_lines = [json.dumps(item, separators=(', ', ': ')) for item in data]
+        # Combine into an array with proper indentation
+        converted_json = '[\n  ' + ',\n  '.join(json_lines) + '\n]'
+        print("Length got:", len(converted_json))
+        print("Got repr:", repr(converted_json))
         return converted_json
     elif outform == 'dictionaries':
         # Make a list of Python dictionaries and save in pickle/serialized form
@@ -360,12 +369,23 @@ def main():
     parser.add_argument('--version', '-v', action='version', version=f'%(prog)s {__version__}')
     parser.add_argument('ids', nargs='+', help='One or more IDs to convert (space-separated)')
     parser.add_argument('--email', default='NoneSetYet', help='Email address')
-    parser.add_argument('--outform', default='pandas', help='Output Format')
     parser.add_argument('--outform', 
                         choices=['pandas', 'json', 'jsonl', 'dictionaries'],
                         default='pandas',
                         help='Output Format (default: pandas)')
     args = parser.parse_args()
+
+    # Determine email to use
+    if args.email:
+        email = args.email
+        if email != 'test_settings':  # Don't save test settings
+            save_email(email)
+    else:
+        email = load_email()
+        if not email:
+            print("Error: No email found. Please provide --email on first use.")
+            print("Example: %run core_test.py --email your@email.com PMC3531190")
+            sys.exit(1)
     
     # Join the IDs with commas for the API
     ids_string = ','.join(args.ids)
