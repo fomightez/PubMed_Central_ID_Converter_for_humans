@@ -215,6 +215,11 @@ def test_can_get_data_from_service_root_API_whether_Pyodide_or_Python():
         assert 23193287 == data[0]['pmid'], (
             "The contact to the API with this `service_root_url` is not working as expected in Python.")
 
+
+
+
+
+###-----------TESTING WORKS AS CLI-------------------------------------------###
 # First check CLI ability of my script.
 # -----------------------------------------------------------------------------#
 pandas_df_expected = '''                         doi       pmcid      pmid requested-id
@@ -324,12 +329,24 @@ def test_converter_cli_working_as_expected_for_JSONL(tmp_path):
 
 
 
-# Now check when used as a function
+
+
+
+
+
+###-----------TESTING WORKS AS FUNCTION--------------------------------------###
+# Now check my script when used as a function
 def test_converter_function_working_as_expected():
     # Check makes pandas and result as expected by converting pmc_id_converter result to Pandas as I worked out in https://github.com/fomightez/pmc_id_converter_demo-binder
 
     # Check you can make a dictionary and result same as pmc_id_converter
 
     # Check you can make json and result same as if pmc_id_converter result converted to json
+
+    # Check can make files using function, too!
     pass
+
+
+
+
 

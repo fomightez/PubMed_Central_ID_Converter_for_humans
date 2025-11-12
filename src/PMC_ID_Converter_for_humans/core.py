@@ -60,7 +60,7 @@ __version__ = '0.1.0'
 #
 #
 # CURRENT JUPYTERLITE TEST along the the line command line use -- closest possible there:
-# Save this as `core_test.py` and run `%pip install requests` in a cell and 
+# Save this as `core_test.py` and run `%pip install requests pandas` in a cell and 
 # then in a new cell run the following command:
 # `%run core_test.py PMC3531190 --email test_settings`
 # -or to show works with multiple ids:
@@ -122,6 +122,7 @@ from pathlib import Path
 import argparse
 import requests
 import json
+import re
 
 
 
@@ -173,6 +174,22 @@ def save_email(email):
     config_file = get_config_file()
     with open(config_file, 'w') as f:
         json.dump({'email': email}, f)
+
+
+def validate_email(email):
+    """
+    Basic email validation.
+    Returns (is_valid, error_message)
+    """
+    if not email or email in ['None', 'NoneSetYet']:
+        return False, "Email cannot be 'None' or empty"
+    
+    # Basic email pattern check
+    email_pattern = r'^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$'
+    if not re.match(email_pattern, email):
+        return False, f"'{email}' does not appear to be a valid email address"
+    
+    return True, None
 ###----------END OF HELPER FUNCTIONS TO HANDLE STORING EMAIL-----------------###
 
 
@@ -203,12 +220,52 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
     # LATER FOLLOW-UP. I think I know issue. Often when you redirect output to a file with `>` many systems add a newline. Later for pytest I was using things like `assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n')`. Maybe `.rstrip('\n')` coukd have been useful here. 
 
     if email == 'test_settings':
+        email = 'my_email@example.com'
+    elif email == 'NoneSetYet':
+        # Try to load saved email
+        email = load_email()
+        if not email:
+            raise ValueError(
+                "No email provided and no saved email found. "
+                "When calling `PMC_id_convert()` include setting email, like `PMC_id_convert(email='<email address here>')`"
+                ". \n**EXITING !!**.\n"
+            )
+            sys.exit(1)
+    else:
+        # Validate email before saving
+        is_valid, error_msg = validate_email(email)
+        if not is_valid:
+            raise ValueError(
+                f"Invalid email address provided: {error_msg}\n"
+                f"Please provide a valid email address.\n"
+                f"Example: PMC_id_convert(..., email='<email address here>')\n"
+                "**EXITING !!**\n"
+            )
+        save_email(email)
+
+    # Final validation check (for loaded emails too)
+    is_valid, error_msg = validate_email(email)
+    if not is_valid:
+        raise ValueError(
+            f"Email validation failed: {error_msg}\n"
+            f"Please update your email using: PMC_id_convert(..., email='<email address here>')\n"
+            "**EXITING !!**\n"
+        )
+
+
+
+    '''
+    if email == 'test_settings':
         email='my_email@example.com'
     elif email == 'NoneSetYet':
         # get email set
         raise SystemExit(
             "You need to set your email in the call the to command or in the "\
             "code used to call the function. \n**EXITING !!**.\n")
+    '''
+    
+
+
     params={'ids': ids,
         'tool': tool,
         'email': email,
@@ -244,22 +301,47 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         #print(f"Requesting: {api_url}")
         
         # Make request with requests package
-        res = requests.get(proxy_url)
-        res.raise_for_status()
+        try:
+            res = requests.get(proxy_url)
+            res.raise_for_status()
+        except requests.exceptions.RequestException as e:
+            raise Exception(
+                f"API request failed: {str(e)}\n"
+                f"This may be due to:\n"
+                f"  - Invalid email address: '{email}'\n"
+                f"  - Network connectivity issues\n"
+                f"  - NCBI API service problems\n"
+                f"Please verify your email is valid and try again.\n"
+            )
         
         # Check if we got HTML (error) instead of expected format
         if res.text.strip().startswith('<'):
-            raise Exception("API returned HTML instead of expected format. Check your parameters.")
+            raise Exception(
+                "API returned an error page instead of data.\n"
+                f"Possible causes:\n"
+                f"  - Invalid or rejected email address: '{email}'\n"
+                f"  - Invalid ID format in: {ids}\n"
+                f"  - API parameter issues\n"
+                f"Please verify your inputs and try again."
+            )
+        
+        try:
+            json_response = res.json()
+        except json.JSONDecodeError as e:
+            raise Exception(
+                f"Failed to parse API response as JSON: {str(e)}\n"
+                f"Response received: {res.text[:200]}...\n"
+                f"This often indicates the API rejected your request.\n"
+                f"Check that email '{email}' is valid."
+            )
         
         data = []
-        for record in res.json()['records']:
+        for record in json_response.get('records', []):
             if record.get('status') == 'error':
                 errmsg = record['errmsg']
-                _id = record.get('pmid') or record.get('pmcid') or record.get(
-                    'doi')
-                #context = Record(errmsg=errmsg, _id=_id)
+                _id = record.get('pmid') or record.get('pmcid') or record.get('doi')
+                context = record
             else:
-                #context = Record(**record) # I don't want to complicate with a class
                 context = record
             data += [context]
         #return data # FOR TESTING/DEVELOPMENT, STOP HERE. OTHERWISE FORMAT OUTPUT!
@@ -268,16 +350,38 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         # with API.
         api_service_root_url = (
                 'https://pmc.ncbi.nlm.nih.gov/tools/idconv/api/v1/articles/')
-        res = requests.get(api_service_root_url, params=params).json()
+        try:
+            response = requests.get(api_service_root_url, params=params)
+            response.raise_for_status()
+            res = response.json()
+        except requests.exceptions.HTTPError as e:
+            raise Exception(
+                f"HTTP error from NCBI API: {e}\n"
+                f"Status code: {response.status_code}\n"
+                f"This may indicate:\n"
+                f"  - Invalid or rejected email: '{email}'\n"
+                f"  - Too many requests (rate limiting)\n"
+                f"  - API service issues\n"
+            )
+        except requests.exceptions.RequestException as e:
+            raise Exception(
+                f"Network error while contacting NCBI API: {str(e)}\n"
+                f"Please check your internet connection and try again.\n"
+            )
+        except json.JSONDecodeError as e:
+            raise Exception(
+                f"Failed to parse API response: {str(e)}\n"
+                f"Response text: {response.text[:200]}...\n"
+                f"The API likely rejected your request. Check your email: '{email}'\n"
+            )
+        
         data = []
-        for record in res['records']:
+        for record in res.get('records', []):
             if record.get('status') == 'error':
                 errmsg = record['errmsg']
-                _id = record.get('pmid') or record.get('pmcid') or record.get(
-                    'doi')
-                #context = Record(errmsg=errmsg, _id=_id)
+                _id = record.get('pmid') or record.get('pmcid') or record.get('doi')
+                context = record
             else:
-                #context = Record(**record) # I don't want to complicate with a class
                 context = record
             data += [context]
         #return data # FOR TESTING/DEVELOPMENT, STOP HERE. OTHERWISE FORMAT OUTPUT!
@@ -374,7 +478,7 @@ def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('--version', '-v', action='version', version=f'%(prog)s {__version__}')
     parser.add_argument('ids', nargs='+', help='One or more IDs to convert (space-separated)')
-    parser.add_argument('--email', default='NoneSetYet', help='Email address')
+    parser.add_argument('--email', default=None, help='Email address')
     parser.add_argument('--outform', 
                         choices=['pandas', 'json', 'jsonl', 'dictionaries'],
                         default='pandas',
@@ -385,18 +489,30 @@ def main():
     if args.email:
         email = args.email
         if email != 'test_settings':  # Don't save test settings
+            # Validate email before trying to save
+            is_valid, error_msg = validate_email(email)
+            if not is_valid:
+                raise ValueError(
+                    f"Invalid email address provided: {error_msg}\n"
+                    f"Please provide a valid email address.\n"
+                    f"Example: PMC_id_convert --email <email address here> PMC3531190\n"
+                    "**EXITING !!**\n"
+                )
             save_email(email)
     else:
         email = load_email()
         if not email:
             print("Error: No email found. Please provide --email on first use.")
-            print("Example: %run core_test.py --email your@email.com PMC3531190")
+            #print("Example: %run core_test.py --email your@email.com PMC3531190")
+            print("Example: PMC_id_convert --email <email address here> PMC3531190")
+            print("-or")
+            print("Example: %run core_test.py --email <email address here> PMC3531190")
             sys.exit(1)
     
     # Join the IDs with commas for the API
     ids_string = ','.join(args.ids)
     
-    result = PMC_id_convert(ids_string, email=args.email, outform = args.outform)
+    result = PMC_id_convert(ids_string, email=email, outform = args.outform)
     print(result)
 
 if __name__ == "__main__":
