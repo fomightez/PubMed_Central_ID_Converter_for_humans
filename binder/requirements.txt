@@ -1,5 +1,6 @@
 requests
 pytest
 uv
+pandas
+numpy
 pmc-id-converter
-
