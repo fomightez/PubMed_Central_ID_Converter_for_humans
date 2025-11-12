@@ -83,7 +83,8 @@ __version__ = '0.1.0'
 
 ##################################
 ##
-# ?
+#
+PMC_id_convert_dataframe_output_prefix = 'PMC_id_convert_dataframe_output' # default Pandas dataframe file name prefix
 #
 #*******************************************************************************
 #**********************END USER ADJUSTABLE VARIABLES****************************
@@ -326,20 +327,24 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         # pmid column values becoming floats/integer; however, do want the NaN 
         # staying that way & `Int64` helps with that.
         df.reset_index(drop=True) # if any removed, need to reset the index
-        df.to_csv('test_out.csv',index = False)
-        df.to_pickle('test_out.pkl')
+        csv_to_make_fn = '{}.csv'.format(
+            PMC_id_convert_dataframe_output_prefix)
+        pickled_df_to_make_fn = '{}.pkl'.format(
+            PMC_id_convert_dataframe_output_prefix)
+        df.to_csv(csv_to_make_fn,index = False)
+        df.to_pickle(pickled_df_to_make_fn)
         # Let user know
-        df_save_as_name = 'output_as_pandas' 
         notify_of_csv_string = ("A dataframe of the data "
         "has been saved as a file in a manner where other "
         "software can access it (comma-separated form).\n"
-        "RESULTING DATAFRAME is stored as ==> '{}.csv'".format(df_save_as_name))
-        notify_pickling_string = ("A dataframe of the data "
+        "RESULTING DATAFRAME is stored as ==> '{}'.".format(csv_to_make_fn))
+        notify_pickled_df_string = ("A dataframe of the data "
         "has been saved as a file in a manner where other "
         "Python programs can access it (pickled form).\n"
-        "RESULTING DATAFRAME is stored as ==> '{}'.pkl".format(df_save_as_name))
-        sys.stderr.write(notify_of_csv_string)
-        sys.stderr.write(notify_pickling_string)
+        "RESULTING DATAFRAME is stored as ==> '{}'.".format(
+            pickled_df_to_make_fn))
+        sys.stderr.write(notify_of_csv_string + '\n')
+        sys.stderr.write(notify_pickled_df_string + '\n')
     #return data
     return df
 #*******************************************************************************
