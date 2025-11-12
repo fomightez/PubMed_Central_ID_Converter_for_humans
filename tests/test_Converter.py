@@ -238,14 +238,21 @@ def test_converter_cli_working_as_expected_for_Pandas(tmp_path):
         f.write(pmc_id_converter_df.to_string())
     # Read in converter result from saved pickled dataframe
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_result.txt'
-    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas > {PMC_ID_Converter_for_humans_cli_result}')
-    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_pandas_result_filepath.read_text(), ("Result of using PMC_ID_Converter_for_humans on command line is not matching Pandas dataframe expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas > pmc_idconv_cli_result.txt` equivalent." ) # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use reditect to make a file.
-    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings > {PMC_ID_Converter_for_humans_cli_result}')
-    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_pandas_result_filepath.read_text(), ("Result of using PMC_ID_Converter_for_humans on command line is not matching Pandas dataframe expected without `outform` being set as 'pandas'." ) # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use reditect to make a file.
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas 2>/dev/null > {PMC_ID_Converter_for_humans_cli_result}') # `2>/dev/null > output.txt` is so stderr feedback to user about saving files doesn't untidy the test
+    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_pandas_result_filepath.read_text(), ("Result of using PMC_ID_Converter_for_humans on command line is not matching Pandas dataframe expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas > pmc_idconv_cli_result.txt` equivalent." ) # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings 2>/dev/null > {PMC_ID_Converter_for_humans_cli_result}') # `2>/dev/null > output.txt` is so stderr feedback to user about saving files doesn't untidy the test
+    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_pandas_result_filepath.read_text(), ("Result of using PMC_ID_Converter_for_humans on command line is not matching Pandas dataframe expected without `outform` being set as 'pandas'." ) # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+
+
+expected_dictionary_result_text = '''[{'doi': '10.1007/s13205-018-1330-z', 'pmcid': 'PMC6039336', 'pmid': 30003000, 'requested-id': '30003000'}, {'doi': '10.1002/open.201800095', 'pmcid': 'PMC6031859', 'pmid': 30003001, 'requested-id': '30003001'}, {'doi': '10.1002/open.201800044', 'pmcid': 'PMC6031856', 'pmid': 30003002, 'requested-id': '30003002'}]'''
 def test_converter_cli_working_as_expected_for_list_of_dictionaries(tmp_path):
     # Check you can make a dictionary and result same as pmc_id_converter
     # READ in PICKLED list of  DICTIONAries
-    pass
+    PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_json_result.txt'
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform dictionaries > {PMC_ID_Converter_for_humans_cli_result}')
+    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == expected_dictionary_result_text, ("Result of using PMC_ID_Converter_for_humans on command line is not matching list of dictionaries expected from `?????` equivalent." ) # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+
+
 # this first version of `expected_json_result_text` doesn't get used, see after it about docstring issue.
 expected_json_result_text = '''[
   {"doi": "10.1007/s13205-018-1330-z", "pmcid": "PMC6039336", "pmid": 30003000, "requested-id": "30003000"},
@@ -280,7 +287,7 @@ def test_converter_cli_working_as_expected_for_json(tmp_path):
     # Now that have made valid JSON using pmc_idconv, try my script & test by comparing result
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_json_result.txt'
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform json > {PMC_ID_Converter_for_humans_cli_result}')
-    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_cli_result_as_VALID_json, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSON-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform json > pmc_idconv_cli_result.txt` equivalent." ) # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use reditect to make a file.
+    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_cli_result_as_VALID_json, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSON-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform json > pmc_idconv_cli_result.txt` equivalent." ) # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
 
 
 
@@ -303,7 +310,6 @@ def test_converter_cli_working_as_expected_for_JSONL(tmp_path):
     assert pmc_idconv_cli_result_as_jsonl == expected_jsonl_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt` equivalent not generating JSONL expected.")
     # Now that have made JSONL using pmc_idconv, try my script & test by comparing result
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_result.txt'
-    os.system('uv pip install -e .')
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > {PMC_ID_Converter_for_humans_cli_result}')
     assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_jsonl, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSONL-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > pmc_idconv_cli_result.txt` equivalent." )
 
@@ -317,6 +323,4 @@ def test_converter_function_working_as_expected():
 
     # Check you can make json and result same as if pmc_id_converter result converted to json
     pass
-
-
 

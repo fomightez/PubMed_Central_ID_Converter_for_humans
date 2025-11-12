@@ -332,12 +332,14 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         df_save_as_name = 'output_as_pandas' 
         notify_of_csv_string = ("A dataframe of the data "
         "has been saved as a file in a manner where other "
-        "Python programs can access it (pickled form).\n"
-        "RESULTING DATAFRAME is stored as ==> '{}.csv'".format(df_save_as_name ))
+        "software can access it (comma-separated form).\n"
+        "RESULTING DATAFRAME is stored as ==> '{}.csv'".format(df_save_as_name))
         notify_pickling_string = ("A dataframe of the data "
         "has been saved as a file in a manner where other "
         "Python programs can access it (pickled form).\n"
-        "RESULTING DATAFRAME is stored as ==> '{}'.pkl".format(df_save_as_name ))
+        "RESULTING DATAFRAME is stored as ==> '{}'.pkl".format(df_save_as_name))
+        sys.stderr.write(notify_of_csv_string)
+        sys.stderr.write(notify_pickling_string)
     #return data
     return df
 #*******************************************************************************
