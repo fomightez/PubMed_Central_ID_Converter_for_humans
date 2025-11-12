@@ -14,7 +14,7 @@ A simple library for using the PubMed Central ID Convert API for dealing biomedi
 
 Summary of Key Features:
 - **Control format of results: Python dictionary, Pandas dataframe, or JSON/JSONL text**.
-- **It is Pyodide/JupyterLite compatible**.
+- **It is Pyodide/JupyterLite compatible**. (WASM-based Python compatible!)
 
 **Features**
 
