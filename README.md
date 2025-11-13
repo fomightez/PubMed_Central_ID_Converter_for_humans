@@ -15,6 +15,7 @@ A simple library for using the PubMed Central ID Convert API for dealing biomedi
 Summary of Key Features:
 - **Control format of results: Python dictionary, Pandas dataframe, or JSON/JSONL text**.
 - **It is Pyodide/JupyterLite compatible**. (WASM-based Python compatible!)
+- Only need to supply your email once.
 
 **Features**
 
@@ -22,6 +23,7 @@ A Python-based library for using the PubMed Central ID Convert API for dealing b
 Use the library to get PubMed Central identifiers, PubMed identifiers (PMIDs), and DOI identifiers for scientific literature.  
 In an opionated choice, the default format for the results is a Pandas dataframe; however, this can be adjusted via flag/argument settings.  
 It is largely kernel agnostic as far as Python goes, which means you can use it in JupyterLite as well as in more standard Jupyter where a typical ipykernel is involved. At present, command line use of the library is not compatible with Pyodide/JupyterLite. Command line use is fully allowed in a typical system with a POSIX system shell (Bash/zsh-type) where standard Python is installed.    
+Set your email once and use the tool subsequently without supplying it each time.   
 
 **Limitations**
 
