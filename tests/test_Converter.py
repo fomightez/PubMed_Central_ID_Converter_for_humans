@@ -328,7 +328,13 @@ def test_converter_cli_working_as_expected_for_JSONL(tmp_path):
     assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_jsonl, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSONL-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > pmc_idconv_cli_result.txt` equivalent." )
 
 
-
+def test_converter_cli_working_to_store_email(tmp_path):
+    # Initiate saving an email address and then check it worked by reading the
+    # email to see if matched expected
+    pmc_idconv_cli_result = tmp_path / 'pmc_idconv_cli_result.txt'
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings 2>/dev/null > {pmc_idconv_cli_result}') 
+    config_file_filepath = Path.home() / '.pmc_id_converter' / 'config.json'
+    assert config_file_filepath.read_text().rstrip('\n') == '{"email": "my_email@example.com"}', ("The email doesn't seem to get stored correctly when running from the command line.")
 
 
 
@@ -345,8 +351,3 @@ def test_converter_function_working_as_expected():
 
     # Check can make files using function, too!
     pass
-
-
-
-
-

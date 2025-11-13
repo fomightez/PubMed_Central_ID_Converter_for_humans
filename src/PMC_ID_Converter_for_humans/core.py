@@ -221,6 +221,7 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
 
     if email == 'test_settings':
         email = 'my_email@example.com'
+        save_email(email)
     elif email == 'NoneSetYet':
         # Try to load saved email
         email = load_email()
