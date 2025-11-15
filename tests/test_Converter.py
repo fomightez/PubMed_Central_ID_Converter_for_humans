@@ -30,6 +30,7 @@ import time
 # First, testa that pmc-id-converter is still producing same results since I am
 # relying on that for comparison.
 
+# NOTE THESE TESTS ARE INTENTIONALLY SLOWED DOWN BY PAUSES TO NOT SLAM API. ###
 
 
 #*******************************************************************************
@@ -432,3 +433,4 @@ def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
     finally:
             sys.stderr = original_stderr # Restore original stderr ; see 
             # the `sys.stderr = StringIO()` line above
+
