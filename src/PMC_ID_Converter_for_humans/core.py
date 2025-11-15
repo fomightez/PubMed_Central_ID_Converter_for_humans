@@ -54,7 +54,7 @@ __version__ = '0.1.0'
 #
 #
 # To use via Python:
-# from PMC_ID_Converter_for_humans import PMC_id_convert
+# from src.PMC_ID_Converter_for_humans import PMC_id_convert # for some reason, with pytest use `from PMC_ID_Converter_for_humans import PMC_id_convert`
 # PMC_id_convert('PMC3531190', email = '<your_email_here>')
 # 
 #

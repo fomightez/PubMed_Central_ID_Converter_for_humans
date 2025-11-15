@@ -15,6 +15,7 @@ import requests
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import time
 
 # Run this file while working directory is at root,
 # like `pytest -v tests/test_Converter.py` 
@@ -115,11 +116,11 @@ def compare_file_content_equality(file1_path, file2_path, msg="Files are not ide
 ###----------------------------------TESTS-----------------------------------###
 
 
-# Check the pmc-id-converter is getting same results as it did in the past
+# Check suqingdong's pmc-id-converter is getting same results as in the past
 #--------------------------------------------------------------------------#
-# Since I am relying on the pmc-id-converter for comparison, I'm checking 
-# the current version is working as expected before comparing any results from 
-# my script.
+# Since I am relying on suqingdong's pmc-id-converter for comparison, I'm 
+# checking the current version is working as expected before comparing any 
+# results from my script.
 def test_pmc_id_converter_cli_working_as_expected(tmp_path):
     the_old_result_text = '{"doi": "10.1007/s13205-018-1330-z", "pmcid": "PMC6039336", "pmid": 30003000, "requested-id": "30003000"}\n{"doi": "10.1002/open.201800095", "pmcid": "PMC6031859", "pmid": 30003001, "requested-id": "30003001"}\n{"doi": "10.1002/open.201800044", "pmcid": "PMC6031856", "pmid": 30003002, "requested-id": "30003002"}\n'
     current_result_fp = tmp_path / 'current_result.txt'
@@ -241,6 +242,7 @@ def test_converter_cli_working_as_expected_for_Pandas(tmp_path):
     #print(pmc_id_converter_df)
     #print(pandas_df_expected)
     assert pmc_id_converter_df.to_string() == pandas_df_expected, ("Result of using suqingdong's pmc_id_converter and then converting the result to a dataframe does not make the expected dataframe content.")
+    time.sleep(0.3)
     # Now that established suqingdong's pmc_id_converter can be used to make an
     # expected dataframe, set up things to next check my script will make same.
     pmc_idconv_pandas_result_filepath = tmp_path / 'pmc_idconv_pandas_result.txt'
@@ -249,6 +251,7 @@ def test_converter_cli_working_as_expected_for_Pandas(tmp_path):
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_result.txt'
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas 2>/dev/null > {PMC_ID_Converter_for_humans_cli_result}') # `2>/dev/null > output.txt` is so stderr feedback to user about saving files doesn't untidy the test
     assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_pandas_result_filepath.read_text(), ("Result of using PMC_ID_Converter_for_humans on command line is not matching Pandas dataframe expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas > pmc_idconv_cli_result.txt` equivalent.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+    time.sleep(0.3)
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings 2>/dev/null > {PMC_ID_Converter_for_humans_cli_result}') # `2>/dev/null > output.txt` is so stderr feedback to user about saving files doesn't untidy the test
     assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_pandas_result_filepath.read_text(), ("Result of using PMC_ID_Converter_for_humans on command line is not matching Pandas dataframe expected without `outform` being set as 'pandas'.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
     # Read in the CSV and check content to verify the functionality of making the CSV
@@ -263,6 +266,7 @@ def test_converter_cli_working_as_expected_for_list_of_dictionaries(tmp_path):
     # Check you can make a dictionary and result same as pmc_id_converter
     # READ in PICKLED list of  DICTIONAries
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_json_result.txt'
+    time.sleep(0.3)
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform dictionaries > {PMC_ID_Converter_for_humans_cli_result}')
     assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == expected_dictionary_result_text, ("Result of using PMC_ID_Converter_for_humans on command line is not matching list of dictionaries expected from `?????` equivalent.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
 
@@ -292,6 +296,7 @@ def test_converter_cli_working_as_expected_for_json(tmp_path):
     # new script.
     # NOTE THAT I DO THIS A MORE BRUTEFORCE STRING conversion route HERE, which I think is probably good as it will make more likely to catch errors that may come up in the `json` package that the script relies on for this conversion. So in a way, each will check the other & end up making things more robust because they are more orthologous than doing the conversion the same way.
     pmc_idconv_cli_result = tmp_path / 'pmc_idconv_cli_result.json'
+    time.sleep(0.3)
     os.system(f'pmc_idconv 30003000 30003001 30003002 > {pmc_idconv_cli_result}')
     pmc_idconv_cli_result_as_VALID_json = pmc_idconv_cli_result.read_text().replace('}','},') # start converting to Valid JSON
     pmc_idconv_cli_result_as_VALID_json = pmc_idconv_cli_result_as_VALID_json.replace('{','  {') # convert to Valid JSON
@@ -300,6 +305,7 @@ def test_converter_cli_working_as_expected_for_json(tmp_path):
     assert pmc_idconv_cli_result_as_VALID_json == expected_json_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.json` equivalent not ending up being processed into valid JSON expected.")
     # Now that have made valid JSON using pmc_idconv, try my script & test by comparing result
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_json_result.txt'
+    time.sleep(0.3)
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform json > {PMC_ID_Converter_for_humans_cli_result}')
     assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_cli_result_as_VALID_json, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSON-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform json > pmc_idconv_cli_result.txt` equivalent.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
 
@@ -324,17 +330,25 @@ def test_converter_cli_working_as_expected_for_JSONL(tmp_path):
     assert pmc_idconv_cli_result_as_jsonl == expected_jsonl_result_text, ("Result of `pmc_idconv 30003000 30003001 30003002 > pmc_idconv_cli_result.txt` equivalent not generating JSONL expected.")
     # Now that have made JSONL using pmc_idconv, try my script & test by comparing result
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_result.txt'
+    time.sleep(0.3)
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > {PMC_ID_Converter_for_humans_cli_result}')
     assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_jsonl, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSONL-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > pmc_idconv_cli_result.txt` equivalent." )
 
 
-def test_converter_cli_working_to_store_email(tmp_path):
+def test_converter_cli_working_to_store_email_and_use_stored(tmp_path):
     # Initiate saving an email address and then check it worked by reading the
-    # email to see if matched expected
+    # email to see if matched expected. Then test it can use the stored email
+    # to do a query without needing email address.
     pmc_idconv_cli_result = tmp_path / 'pmc_idconv_cli_result.txt'
+    time.sleep(0.3)
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings 2>/dev/null > {pmc_idconv_cli_result}') 
     config_file_filepath = Path.home() / '.pmc_id_converter' / 'config.json'
     assert config_file_filepath.read_text().rstrip('\n') == '{"email": "my_email@example.com"}', ("The email doesn't seem to get stored correctly when running from the command line.")
+    pmc_idconv_cli_result_using_stored_email = tmp_path / 'pmc_idconv_cli_result_using_stored_email.txt'
+    time.sleep(0.3)
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 2>/dev/null > {pmc_idconv_cli_result_using_stored_email}')
+    assert pmc_idconv_cli_result_using_stored_email.read_text().rstrip('\n') == pandas_df_expected, ("The stored email doesn't seem to get used???!?!") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+
 
 
 
@@ -344,10 +358,56 @@ def test_converter_cli_working_to_store_email(tmp_path):
 # Now check my script when used as a function
 def test_converter_function_working_as_expected():
     # Check makes pandas and result as expected by converting pmc_id_converter result to Pandas as I worked out in https://github.com/fomightez/pmc_id_converter_demo-binder
-
+    from PMC_ID_Converter_for_humans import PMC_id_convert
+    
     # Check you can make a dictionary and result same as pmc_id_converter
+    time.sleep(0.3)
+    r = PMC_id_convert('30003000 30003001 30003002', email = 'test_settings', outform = 'dictionaries')
+    assert isinstance(r, list)
+    assert isinstance(r[0], dict)
+    assert repr(r) == expected_dictionary_result_text, ("Result of using PMC_ID_Converter_for_humans as a function is not matching dictionary expected from `30003000 30003001 3000300`." )
+    
 
     # Check you can make json and result same as if pmc_id_converter result converted to json
+    pass
+
+    # Check can make jsonl result
+    time.sleep(0.3)
+    r = PMC_id_convert('30003000 30003001 30003002', email = 'test_settings', outform = 'jsonl')
+    assert str(r) == expected_jsonl_result_text.rstrip('\n'), ("Result of using PMC_ID_Converter_for_humans as a function is not matching JSONL-formatted text expected from `30003000 30003001 3000300`." )# Note the extra `rstrip('\n')` there fixes whitespace at end making it not valid to match
 
     # Check can make files using function, too!
     pass
+
+def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
+    # Check can store and use email with function use
+    # THIS ALSO TESTS MAKING A DATAFRAME WITH CORRECT CONTENT using the function.
+    from PMC_ID_Converter_for_humans import PMC_id_convert
+    original_stderr = sys.stderr
+    sys.stderr = StringIO()  # Redirect stderr to a dummy buffer ;  this is 
+    # because `PMC3531191123` is not a match and will produce `[2025-10-31 20:11:21 ID_CONV_API idconv ERROR MainThread:58] RecordError: Identifier not found in PMC for "PMC3531191123"`. The test will still give 'PASSED', but things will look bad. By shunting std.err to a dummy buffer, it avoids this passing through and making things look bad.
+    try:
+        #delete any old pickled df result
+        os.remove(f"{PMC_id_convert_dataframe_output_prefix}.pkl")
+        time.sleep(0.3)
+        r_df = PMC_id_convert(
+            'PMC3531190 PMC3531191123 PMC3531191', email = 'test_settings')
+        assert isinstance(r_df, pd.DataFrame)
+        time.sleep(0.3)
+        r_df2 = PMC_id_convert('PMC3531190 PMC3531191123 PMC3531191')
+        assert isinstance(r_df2, pd.DataFrame)
+        assert r_df.equals(r_df2), (
+            "The returned dataframe doesn't seem to be generated properly.")
+        # check pickled dataframe to make sure made something correct
+        df_newly_made_by_PMC_ID_Converter_by_function = pd.read_pickle(f"{PMC_id_convert_dataframe_output_prefix}.pkl")
+        assert df_newly_made_by_PMC_ID_Converter_by_function.equals(r_df), (
+            "The expected pickled dataframe doesn't seem to be generated "
+            "properly when the function utilized & no email provided.")
+    finally:
+            sys.stderr = original_stderr # Restore original stderr ; see 
+            # the `sys.stderr = StringIO()` line above
+
+
+
+
+
