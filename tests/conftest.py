@@ -23,4 +23,13 @@ def ensure_package_installed():
         subprocess.run(['uv', 'pip', 'install', '-e', '.'], 
                       check=True, 
                       capture_output=True)
+        
+        # CRITICAL: Invalidate import caches so Python knows about the new package
+        importlib.invalidate_caches()
+        
+        # Also ensure the package location is in sys.path
+        import site
+        importlib.reload(site)
+    
     yield
+    # Note that without the `importlib.invalidate_caches()` if I start the MyBinder served session, it doesn't find the module and I found if I opened the test file and saved it without changing ANYTHING, it changed the time stamp and pytest imported it again and it worked. `importlib.invalidate_caches()` tells Python to forget what it thought it knew about what packages are available. This forces Python to rescan the filesystem when the import statement is encountered, and without my needing to save it manually to trigger it.
