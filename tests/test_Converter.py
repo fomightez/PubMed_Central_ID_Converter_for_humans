@@ -332,7 +332,7 @@ def test_converter_cli_working_as_expected_for_JSONL(tmp_path):
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_result.txt'
     time.sleep(0.3)
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > {PMC_ID_Converter_for_humans_cli_result}')
-    assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_jsonl, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSONL-formatted text expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > pmc_idconv_cli_result.txt` equivalent." )
+    assert PMC_ID_Converter_for_humans_cli_result.read_text() == pmc_idconv_cli_result_as_jsonl, ("Result of using PMC_ID_Converter_for_humans on command line is not matching JSONL-formatted text (JSONL (JSON Lines) or NDJSON (Newline Delimited JSON)) expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform jsonl > pmc_idconv_cli_result.txt` equivalent." )
 
 
 def test_converter_cli_working_to_store_email_and_use_stored(tmp_path):
@@ -356,33 +356,58 @@ def test_converter_cli_working_to_store_email_and_use_stored(tmp_path):
 
 ###-----------TESTING WORKS AS FUNCTION--------------------------------------###
 # Now check my script when used as a function
+#(since the checks CLI works in ways expected was done with separate, thorough tests and the tests it works via functions paraellels it largely, the tests themselves will condensed into smaller groupings with the specific feedback providing details of one that may have failed)
 def test_converter_function_working_as_expected():
-    # Check makes pandas and result as expected by converting pmc_id_converter result to Pandas as I worked out in https://github.com/fomightez/pmc_id_converter_demo-binder
     from PMC_ID_Converter_for_humans import PMC_id_convert
+    # The check that it makes pandas dataframe and result as expected is done 
+    # in next test, specifically
+    # `test_converter_function_working_to_store_email_and_use_stored()`
+    # That next test also inlcudes testing it makes pickled file of that 
+    # dataframe. If that worked, I assume the CSV worked as well since that part 
+    # already tested when code using on command line.
     
     # Check you can make a dictionary and result same as pmc_id_converter
     time.sleep(0.3)
-    r = PMC_id_convert('30003000 30003001 30003002', email = 'test_settings', outform = 'dictionaries')
+    r = PMC_id_convert(
+        '30003000 30003001 30003002', email = 'test_settings', 
+        outform = 'dictionaries')
     assert isinstance(r, list)
     assert isinstance(r[0], dict)
-    assert repr(r) == expected_dictionary_result_text, ("Result of using PMC_ID_Converter_for_humans as a function is not matching dictionary expected from `30003000 30003001 3000300`." )
+    assert repr(r) == expected_dictionary_result_text, ("Result of using "
+        "PMC_ID_Converter_for_humans as a function is not matching list of "
+        "dictionaries expected from `PMC_id_convert('30003000 30003001 "
+        "30003002', email = 'test_settings', outform = 'dictionaries')`." )
     
 
     # Check you can make json and result same as if pmc_id_converter result converted to json
-    pass
+    time.sleep(0.3)
+    rj = PMC_id_convert(
+        '30003000 30003001 30003002', email = 'test_settings', 
+        outform = 'json')
+    assert str(rj) == expected_json_result_text.rstrip('\n'), ("Result of "
+        "using PMC_ID_Converter_for_humans as a function is not matching "
+        "JSON-formatted text expected from `PMC_id_convert('30003000 "
+        "30003001 30003002', email = 'test_settings', outform = 'json')`." )
 
     # Check can make jsonl result
     time.sleep(0.3)
-    r = PMC_id_convert('30003000 30003001 30003002', email = 'test_settings', outform = 'jsonl')
-    assert str(r) == expected_jsonl_result_text.rstrip('\n'), ("Result of using PMC_ID_Converter_for_humans as a function is not matching JSONL-formatted text expected from `30003000 30003001 3000300`." )
+    rjl = PMC_id_convert(
+        '30003000 30003001 30003002', email = 'test_settings', 
+        outform = 'jsonl')
+    assert str(rjl) == expected_jsonl_result_text.rstrip('\n'), ("Result of "
+        "using PMC_ID_Converter_for_humans as a function is not matching "
+        "JSONL-formatted text (JSONL (JSON Lines) or NDJSON (Newline Delimited "
+        "JSON)) expected from `PMC_id_convert('30003000 30003001 30003002', "
+        "email = 'test_settings', outform = 'jsonl')`." )
 
 
-    # Check can make files using function, too!
-    pass
 
 def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
     # Check can store and use email with function use
-    # THIS ALSO TESTS MAKING A DATAFRAME WITH CORRECT CONTENT using the function.
+    # THIS ALSO TESTS MAKING A DATAFRAME WITH CORRECT CONTENT using the 
+    # function. And that a pickled dataframe is also made. If that worked, I 
+    # assume the CSV worked as well since that part already tested when code 
+    # using on command line.
     from PMC_ID_Converter_for_humans import PMC_id_convert
     original_stderr = sys.stderr
     sys.stderr = StringIO()  # Redirect stderr to a dummy buffer ;  this is 
@@ -407,8 +432,3 @@ def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
     finally:
             sys.stderr = original_stderr # Restore original stderr ; see 
             # the `sys.stderr = StringIO()` line above
-
-
-
-
-
