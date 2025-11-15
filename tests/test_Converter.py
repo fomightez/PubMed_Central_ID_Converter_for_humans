@@ -374,7 +374,8 @@ def test_converter_function_working_as_expected():
     # Check can make jsonl result
     time.sleep(0.3)
     r = PMC_id_convert('30003000 30003001 30003002', email = 'test_settings', outform = 'jsonl')
-    assert str(r) == expected_jsonl_result_text.rstrip('\n'), ("Result of using PMC_ID_Converter_for_humans as a function is not matching JSONL-formatted text expected from `30003000 30003001 3000300`." )# Note the extra `rstrip('\n')` there fixes whitespace at end making it not valid to match
+    assert str(r) == expected_jsonl_result_text.rstrip('\n'), ("Result of using PMC_ID_Converter_for_humans as a function is not matching JSONL-formatted text expected from `30003000 30003001 3000300`." )
+
 
     # Check can make files using function, too!
     pass
