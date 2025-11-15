@@ -1,6 +1,7 @@
 import pytest
 import subprocess
 import sys
+import importlib
 
 # This runs the equivalent of `uv pip install -e .` at the start of the session so that uv registers the entrypoint `PMC_id_convert` for the script as a command that can be called on the command line
 '''
