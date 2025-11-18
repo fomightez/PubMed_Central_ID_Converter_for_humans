@@ -4,4 +4,4 @@ uv
 pandas
 numpy
 pmc-id-converter
-git+https://github.com/fomightez/PMC-ID-Converter-for-humans.git
+git+https://github.com/fomightez/PubMed_Central_ID_Converter_for_humans.git
