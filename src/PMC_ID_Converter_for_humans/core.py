@@ -32,12 +32,12 @@ __version__ = '0.1.0'
 # 
 # 
 # To do:
-# - add to https://github.com/fomightez/pmc_id_converter_demo-binder pointing users at better resource!
 # - remove showing you can get away with `--email test_settings` from 'CURRENT JUPYTERLITE TEST' because want to push users to use email.
 # - change command lines to have `'<your_email_here>'` in all more standard command line
 # examples, but somewhere else note how I tested in terminal while developping early, which current examples show!
-# - I plan to add other arguments like `format` so expand early examples and 
-# future ones to include maybe some of those, too.
+# - I plan to add other arguments like `format` so expand early examples (&
+# future examples) in usage section at README and in demo notebook to feature 
+# some/all (preferably ALL) of those, too.
 #
 #
 # TO RUN:
@@ -84,7 +84,7 @@ __version__ = '0.1.0'
 ##################################
 ##
 #
-PMC_id_convert_dataframe_output_prefix = 'PMC_id_convert_dataframe_output' # default Pandas dataframe file name prefix
+PMC_id_convert_output_prefix = 'PMC_id_convert_output' # default file name prefix
 #
 #*******************************************************************************
 #**********************END USER ADJUSTABLE VARIABLES****************************
@@ -123,7 +123,7 @@ import argparse
 import requests
 import json
 import re
-
+import pandas as pd
 
 
 
@@ -211,7 +211,7 @@ def validate_email(email):
 ###------------------------'main' function of script-------------------------###
 
 
-def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
+def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas', return_string = False, output_prefix = PMC_id_convert_output_prefix):
     tool='PMC_ID_Converter_for_humans'
     versions='no'
     # print(expected_jsonl_result_text[:-1]) # was adding one too many newlines, 
@@ -422,7 +422,7 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         return data
     else:
         # Make a Pandas dataframe
-        import pandas as pd
+        # import pandas as pd # MOved this to overall so I can use `if isinstance(result, pd.DataFrame):` in `main()`
         import numpy as np
         #records_of_query_results = API.idconv(query_ids)
         #records_of_query_results_data = [x.data for x in data] # make a list of the results dicts
@@ -432,10 +432,10 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas'):
         # pmid column values becoming floats/integer; however, do want the NaN 
         # staying that way & `Int64` helps with that.
         df.reset_index(drop=True) # if any removed, need to reset the index
-        csv_to_make_fn = '{}.csv'.format(
-            PMC_id_convert_dataframe_output_prefix)
-        pickled_df_to_make_fn = '{}.pkl'.format(
-            PMC_id_convert_dataframe_output_prefix)
+        csv_to_make_fn = '{}_df.csv'.format(
+            PMC_id_convert_output_prefix)
+        pickled_df_to_make_fn = '{}_df.pkl'.format(
+            PMC_id_convert_output_prefix)
         df.to_csv(csv_to_make_fn,index = False)
         df.to_pickle(pickled_df_to_make_fn)
         # Let user know
@@ -484,6 +484,10 @@ def main():
                         choices=['pandas', 'json', 'jsonl', 'dictionaries'],
                         default='pandas',
                         help='Output Format (default: pandas)')
+    parser.add_argument('--return_string', action='store_true',
+                    help='Also print string representation when using pandas or dictionaries output')
+    parser.add_argument('--output_prefix', default=PMC_id_convert_output_prefix,
+                        help='Prefix for output files (default: PMC_id_convert_output)')
     args = parser.parse_args()
 
     # Determine email to use
@@ -513,8 +517,31 @@ def main():
     # Join the IDs with commas for the API
     ids_string = ','.join(args.ids)
     
-    result = PMC_id_convert(ids_string, email=email, outform = args.outform)
-    print(result)
+    result = PMC_id_convert(ids_string, email=email, outform = args.outform, return_string = args.return_string, output_prefix = args.output_prefix)
+    if isinstance(result, pd.DataFrame):
+        if args.return_string:
+            print(result)
+        # by default it will already be saved a file anyway 
+        # but some using it on the command line may want to access the string representation
+    elif isinstance(result, list):
+        # if it is a list and script being used on the command line, save the list of dictionaries in pickled form to read in separately & use in Pyton, and `return_string` is true, print the string representation of the list of dictionaries
+        data = result
+        import pickle
+        pickled_list_to_make_fn = '{}_datalist.pkl'.format(
+            PMC_id_convert_output_prefix)
+        with open(pickled_list_to_make_fn , 'wb') as f:
+            pickle.dump(data, f)
+        # Let user know
+        notify_pickled_list_string = ("The data "
+        "has been saved as a file in a manner where other "
+        "Python programs can access it (pickled form).\n"
+        "RESULTING PICKLED list of dictionaries is stored as ==> '{}'.".format(
+            pickled_list_to_make_fn))
+        sys.stderr.write(notify_pickled_list_string  + '\n')
+        if args.return_string: 
+            print(data)
+    else:
+        print(result)
 
 if __name__ == "__main__":
     main()

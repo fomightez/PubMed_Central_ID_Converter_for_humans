@@ -39,7 +39,7 @@ import time
 
 ##################################
 #
-PMC_id_convert_dataframe_output_prefix = 'PMC_id_convert_dataframe_output' # default Pandas dataframe file name prefix
+PMC_id_convert_output_prefix = 'PMC_id_convert_output' # default file name prefix
  
 
 #
@@ -250,26 +250,28 @@ def test_converter_cli_working_as_expected_for_Pandas(tmp_path):
     with open(pmc_idconv_pandas_result_filepath, 'w') as f:
         f.write(pmc_id_converter_df.to_string())
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_result.txt'
-    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas 2>/dev/null > {PMC_ID_Converter_for_humans_cli_result}') # `2>/dev/null > output.txt` is so stderr feedback to user about saving files doesn't untidy the test
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas --return_string 1> {PMC_ID_Converter_for_humans_cli_result} 2>/dev/null') # `2>/dev/null` is so stderr feedback to user about saving files doesn't untidy the test ouput
     assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_pandas_result_filepath.read_text(), ("Result of using PMC_ID_Converter_for_humans on command line is not matching Pandas dataframe expected from `PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform pandas > pmc_idconv_cli_result.txt` equivalent.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
     time.sleep(0.3)
-    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings 2>/dev/null > {PMC_ID_Converter_for_humans_cli_result}') # `2>/dev/null > output.txt` is so stderr feedback to user about saving files doesn't untidy the test
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --return_string 1> {PMC_ID_Converter_for_humans_cli_result} 2>/dev/null') # `2>/dev/null` is so stderr feedback to user about saving files doesn't untidy the test output
     assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == pmc_idconv_pandas_result_filepath.read_text(), ("Result of using PMC_ID_Converter_for_humans on command line is not matching Pandas dataframe expected without `outform` being set as 'pandas'.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
     # Read in the CSV and check content to verify the functionality of making the CSV
-    assert Path(f"{PMC_id_convert_dataframe_output_prefix}.csv").read_text().rstrip('\n') == csv_output_from_pandas_save_via_cli, ("The expected CSV from the dataframe doesn't seem to be generated properly.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+    assert Path(f"{PMC_id_convert_output_prefix}_df.csv").read_text().rstrip('\n') == csv_output_from_pandas_save_via_cli, ("The expected CSV from the dataframe doesn't seem to be generated properly.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
     # Read in converter result from saved pickled dataframe to verify the functionality of making the pickled dataframe
-    df_newly_made_by_PMC_ID_Converter_for_humans = pd.read_pickle(f"{PMC_id_convert_dataframe_output_prefix}.pkl")
+    df_newly_made_by_PMC_ID_Converter_for_humans = pd.read_pickle(f"{PMC_id_convert_output_prefix}_df.pkl")
     assert df_newly_made_by_PMC_ID_Converter_for_humans.equals(pmc_id_converter_df), ("The expected pickled dataframe from the dataframe doesn't seem to be generated properly.")
 
 
 expected_dictionary_result_text = '''[{'doi': '10.1007/s13205-018-1330-z', 'pmcid': 'PMC6039336', 'pmid': 30003000, 'requested-id': '30003000'}, {'doi': '10.1002/open.201800095', 'pmcid': 'PMC6031859', 'pmid': 30003001, 'requested-id': '30003001'}, {'doi': '10.1002/open.201800044', 'pmcid': 'PMC6031856', 'pmid': 30003002, 'requested-id': '30003002'}]'''
 def test_converter_cli_working_as_expected_for_list_of_dictionaries(tmp_path):
     # Check you can make a dictionary and result same as pmc_id_converter
-    # READ in PICKLED list of  DICTIONAries
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_json_result.txt'
     time.sleep(0.3)
-    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform dictionaries > {PMC_ID_Converter_for_humans_cli_result}')
-    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == expected_dictionary_result_text, ("Result of using PMC_ID_Converter_for_humans on command line is not matching list of dictionaries expected from `?????` equivalent.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform dictionaries --return_string 1> {PMC_ID_Converter_for_humans_cli_result}  2>/dev/null') # `2>/dev/null` is so stderr feedback to user about saving files doesn't untidy the test output
+    assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == expected_dictionary_result_text, ("Result of using PMC_ID_Converter_for_humans on command line is not matching list of dictionaries expected from `--outform dictionaries` command equivalent.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+    # READ in PICKLED list of  DICTIONARIES
+    with open('{?????}_datalist.pkl', 'rb') as f: # TO DO NEXT!!!
+        loaded_data = pickle.load(f)
 
 
 # this first version of `expected_json_result_text` doesn't get used, see after it about docstring issue.
@@ -342,12 +344,12 @@ def test_converter_cli_working_to_store_email_and_use_stored(tmp_path):
     # to do a query without needing email address.
     pmc_idconv_cli_result = tmp_path / 'pmc_idconv_cli_result.txt'
     time.sleep(0.3)
-    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings 2>/dev/null > {pmc_idconv_cli_result}') 
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --return_string 1> {pmc_idconv_cli_result} 2>/dev/null') 
     config_file_filepath = Path.home() / '.pmc_id_converter' / 'config.json'
     assert config_file_filepath.read_text().rstrip('\n') == '{"email": "my_email@example.com"}', ("The email doesn't seem to get stored correctly when running from the command line.")
     pmc_idconv_cli_result_using_stored_email = tmp_path / 'pmc_idconv_cli_result_using_stored_email.txt'
     time.sleep(0.3)
-    os.system(f'PMC_id_convert 30003000 30003001 30003002 2>/dev/null > {pmc_idconv_cli_result_using_stored_email}')
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --return_string 1> {pmc_idconv_cli_result_using_stored_email} 2>/dev/null')
     assert pmc_idconv_cli_result_using_stored_email.read_text().rstrip('\n') == pandas_df_expected, ("The stored email doesn't seem to get used???!?!") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
 
 
@@ -415,7 +417,7 @@ def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
     # because `PMC3531191123` is not a match and will produce `[2025-10-31 20:11:21 ID_CONV_API idconv ERROR MainThread:58] RecordError: Identifier not found in PMC for "PMC3531191123"`. The test will still give 'PASSED', but things will look bad. By shunting std.err to a dummy buffer, it avoids this passing through and making things look bad.
     try:
         #delete any old pickled df result
-        os.remove(f"{PMC_id_convert_dataframe_output_prefix}.pkl")
+        os.remove(f"{PMC_id_convert_output_prefix}_df.pkl")
         time.sleep(0.3)
         r_df = PMC_id_convert(
             'PMC3531190 PMC3531191123 PMC3531191', email = 'test_settings')
@@ -426,7 +428,7 @@ def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
         assert r_df.equals(r_df2), (
             "The returned dataframe doesn't seem to be generated properly.")
         # check pickled dataframe to make sure made something correct
-        df_newly_made_by_PMC_ID_Converter_by_function = pd.read_pickle(f"{PMC_id_convert_dataframe_output_prefix}.pkl")
+        df_newly_made_by_PMC_ID_Converter_by_function = pd.read_pickle(f"{PMC_id_convert_output_prefix}_df.pkl")
         assert df_newly_made_by_PMC_ID_Converter_by_function.equals(r_df), (
             "The expected pickled dataframe doesn't seem to be generated "
             "properly when the function utilized & no email provided.")
