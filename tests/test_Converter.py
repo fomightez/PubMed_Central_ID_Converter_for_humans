@@ -269,9 +269,7 @@ def test_converter_cli_working_as_expected_for_list_of_dictionaries(tmp_path):
     time.sleep(0.3)
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform dictionaries --return_string 1> {PMC_ID_Converter_for_humans_cli_result}  2>/dev/null') # `2>/dev/null` is so stderr feedback to user about saving files doesn't untidy the test output
     assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == expected_dictionary_result_text, ("Result of using PMC_ID_Converter_for_humans on command line is not matching list of dictionaries expected from `--outform dictionaries` command equivalent.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
-    # READ in PICKLED list of  DICTIONARIES
-    with open('{?????}_datalist.pkl', 'rb') as f: # TO DO NEXT!!!
-        loaded_data = pickle.load(f)
+    
 
 
 # this first version of `expected_json_result_text` doesn't get used, see after it about docstring issue.
