@@ -433,9 +433,9 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas', return_string 
         # staying that way & `Int64` helps with that.
         df.reset_index(drop=True) # if any removed, need to reset the index
         csv_to_make_fn = '{}_df.csv'.format(
-            PMC_id_convert_output_prefix)
+            output_prefix)
         pickled_df_to_make_fn = '{}_df.pkl'.format(
-            PMC_id_convert_output_prefix)
+            output_prefix)
         df.to_csv(csv_to_make_fn,index = False)
         df.to_pickle(pickled_df_to_make_fn)
         # Let user know

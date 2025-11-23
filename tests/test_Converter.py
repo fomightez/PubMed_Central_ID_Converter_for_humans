@@ -447,9 +447,21 @@ def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
         assert df_newly_made_by_PMC_ID_Converter_by_function.equals(r_df), (
             "The expected pickled dataframe doesn't seem to be generated "
             "properly when the function utilized & no email provided.")
+        # test `output_prefix` works with function
+        time.sleep(0.3)
+        the_test_output_prefix = 'test_THE_DF_output_prefix'
+        r_df3 = PMC_id_convert('PMC3531190 PMC3531191123 PMC3531191',output_prefix = the_test_output_prefix)
+        assert isinstance(r_df3, pd.DataFrame)
+        assert r_df3.equals(r_df), (
+            "The returned dataframe doesn't seem to be generated properly.")
+        r_df3_via_pickle = pd.read_pickle(f"{the_test_output_prefix}_df.pkl")
+        assert isinstance(r_df3_via_pickle, pd.DataFrame)
+        assert r_df3_via_pickle.equals(r_df2), (
+            "The pickled dataframe doesn't seem to be generated properly.")
     finally:
             sys.stderr = original_stderr # Restore original stderr ; see 
             # the `sys.stderr = StringIO()` line above
     os.remove(f"{PMC_id_convert_output_prefix}_df.pkl")
     os.remove(f"{PMC_id_convert_output_prefix}_df.csv")
-
+    os.remove(f"{he_test_output_prefix}_df.pkl")
+    os.remove(f"{he_test_output_prefix}_df.csv")
