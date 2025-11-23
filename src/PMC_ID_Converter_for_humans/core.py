@@ -484,10 +484,19 @@ def main():
                         choices=['pandas', 'json', 'jsonl', 'dictionaries'],
                         default='pandas',
                         help='Output Format (default: pandas)')
-    parser.add_argument('--return_string', action='store_true',
-                    help='Also print string representation when using pandas or dictionaries output')
-    parser.add_argument('--output_prefix', default=PMC_id_convert_output_prefix,
-                        help='Prefix for output files (default: PMC_id_convert_output)')
+    parser.add_argument(
+        "--return_string",
+        action="store_true",
+        help=(
+            "Also print string representation when using pandas or "
+            "dictionaries output"
+        ),
+    )
+    parser.add_argument(
+        "--output_prefix",
+        default=PMC_id_convert_output_prefix,
+        help=f"Prefix for output files (default: {PMC_id_convert_output_prefix})",
+    )
     args = parser.parse_args()
 
     # Determine email to use
@@ -528,7 +537,7 @@ def main():
         data = result
         import pickle
         pickled_list_to_make_fn = '{}_datalist.pkl'.format(
-            PMC_id_convert_output_prefix)
+            args.output_prefix)
         with open(pickled_list_to_make_fn , 'wb') as f:
             pickle.dump(data, f)
         # Let user know
