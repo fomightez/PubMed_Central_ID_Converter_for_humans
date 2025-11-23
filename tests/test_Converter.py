@@ -261,6 +261,18 @@ def test_converter_cli_working_as_expected_for_Pandas(tmp_path):
     # Read in converter result from saved pickled dataframe to verify the functionality of making the pickled dataframe
     df_newly_made_by_PMC_ID_Converter_for_humans = pd.read_pickle(f"{PMC_id_convert_output_prefix}_df.pkl")
     assert df_newly_made_by_PMC_ID_Converter_for_humans.equals(pmc_id_converter_df), ("The expected pickled dataframe from the dataframe doesn't seem to be generated properly.")
+    # finally check can use `output_prefix` to adjust name of pickled dataframe file
+    time.sleep(0.3)
+    the_test_output_prefix = 'test_THE_CLI_DF_output_prefix'
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --output_prefix {the_test_output_prefix} 2>/dev/null') # `2>/dev/null` 
+    # is so stderr feedback to user about saving files doesn't untidy the test 
+    # output
+    r_df_via_pickle = pd.read_pickle(f"{the_test_output_prefix}_df.pkl")
+    assert isinstance(r_df_via_pickle, pd.DataFrame)
+    assert r_df_via_pickle.equals(pmc_id_converter_df), (
+            "The pickled dataframe, with `output_prefix` to adjust name of file"
+            ", doesn't seem to be generated properly.")
+    os.remove(f'{the_test_output_prefix}_df.pkl')
 
 
 expected_dictionary_result_text = '''[{'doi': '10.1007/s13205-018-1330-z', 'pmcid': 'PMC6039336', 'pmid': 30003000, 'requested-id': '30003000'}, {'doi': '10.1002/open.201800095', 'pmcid': 'PMC6031859', 'pmid': 30003001, 'requested-id': '30003001'}, {'doi': '10.1002/open.201800044', 'pmcid': 'PMC6031856', 'pmid': 30003002, 'requested-id': '30003002'}]'''
