@@ -15,6 +15,7 @@ import requests
 import pandas as pd
 import numpy as np
 from pathlib import Path
+import pickle
 import time
 
 # Run this file while working directory is at root,
@@ -263,13 +264,29 @@ def test_converter_cli_working_as_expected_for_Pandas(tmp_path):
 
 
 expected_dictionary_result_text = '''[{'doi': '10.1007/s13205-018-1330-z', 'pmcid': 'PMC6039336', 'pmid': 30003000, 'requested-id': '30003000'}, {'doi': '10.1002/open.201800095', 'pmcid': 'PMC6031859', 'pmid': 30003001, 'requested-id': '30003001'}, {'doi': '10.1002/open.201800044', 'pmcid': 'PMC6031856', 'pmid': 30003002, 'requested-id': '30003002'}]'''
-def test_converter_cli_working_as_expected_for_list_of_dictionaries(tmp_path):
+def test_converter_cli_working_as_expected_for_list_of_dictionaries_and_output_prefix_works(tmp_path):
     # Check you can make a dictionary and result same as pmc_id_converter
     PMC_ID_Converter_for_humans_cli_result = tmp_path / 'PMC_ID_Converter_for_humans_cli_json_result.txt'
     time.sleep(0.3)
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform dictionaries --return_string 1> {PMC_ID_Converter_for_humans_cli_result}  2>/dev/null') # `2>/dev/null` is so stderr feedback to user about saving files doesn't untidy the test output
     assert PMC_ID_Converter_for_humans_cli_result.read_text().rstrip('\n') == expected_dictionary_result_text, ("Result of using PMC_ID_Converter_for_humans on command line is not matching list of dictionaries expected from `--outform dictionaries` command equivalent.") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
-    
+    # READ in PICKLED list of DICTIONARIES and test it is as expected
+    with open(f'{PMC_id_convert_output_prefix}_datalist.pkl', 'rb') as f:
+        loaded_data = pickle.load(f)
+    assert isinstance(loaded_data, list)
+    assert isinstance(loaded_data[0], dict)
+    assert loaded_data == [{'doi': '10.1007/s13205-018-1330-z', 'pmcid': 'PMC6039336', 'pmid': 30003000, 'requested-id': '30003000'}, {'doi': '10.1002/open.201800095', 'pmcid': 'PMC6031859', 'pmid': 30003001, 'requested-id': '30003001'}, {'doi': '10.1002/open.201800044', 'pmcid': 'PMC6031856', 'pmid': 30003002, 'requested-id': '30003002'}], ("Result of using PMC_ID_Converter_for_humans on command line does not seem to be pickling the expected data from `--outform dictionaries` command equivalent.")
+    os.remove(f'{PMC_id_convert_output_prefix}_datalist.pkl')
+    # test use of `output_prefix`
+    time.sleep(0.3)
+    the_test_output_prefix = 'test_THE_output_prefix'
+    os.system(f'PMC_id_convert 30003000 30003001 30003002 --email test_settings --outform dictionaries --output_prefix {the_test_output_prefix} 2>/dev/null') # `2>/dev/null` is so stderr feedback to user about saving files doesn't untidy the test output
+    with open(f'{the_test_output_prefix}_datalist.pkl', 'rb') as f:
+        loaded_data = pickle.load(f)
+    assert isinstance(loaded_data, list)
+    assert isinstance(loaded_data[0], dict)
+    assert loaded_data == [{'doi': '10.1007/s13205-018-1330-z', 'pmcid': 'PMC6039336', 'pmid': 30003000, 'requested-id': '30003000'}, {'doi': '10.1002/open.201800095', 'pmcid': 'PMC6031859', 'pmid': 30003001, 'requested-id': '30003001'}, {'doi': '10.1002/open.201800044', 'pmcid': 'PMC6031856', 'pmid': 30003002, 'requested-id': '30003002'}], ("Result of using PMC_ID_Converter_for_humans on command line does not seem to be pickling the expected data from `--outform dictionaries` command equivalent.")
+    os.remove(f'{the_test_output_prefix}_datalist.pkl')
 
 
 # this first version of `expected_json_result_text` doesn't get used, see after it about docstring issue.
@@ -367,7 +384,7 @@ def test_converter_function_working_as_expected():
     # dataframe. If that worked, I assume the CSV worked as well since that part 
     # already tested when code using on command line.
     
-    # Check you can make a dictionary and result same as pmc_id_converter
+    # Check you can make list of dictionaries and result as expected
     time.sleep(0.3)
     r = PMC_id_convert(
         '30003000 30003001 30003002', email = 'test_settings', 
@@ -378,7 +395,7 @@ def test_converter_function_working_as_expected():
         "PMC_ID_Converter_for_humans as a function is not matching list of "
         "dictionaries expected from `PMC_id_convert('30003000 30003001 "
         "30003002', email = 'test_settings', outform = 'dictionaries')`." )
-    
+
 
     # Check you can make json and result same as if pmc_id_converter result converted to json
     time.sleep(0.3)
@@ -433,4 +450,6 @@ def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
     finally:
             sys.stderr = original_stderr # Restore original stderr ; see 
             # the `sys.stderr = StringIO()` line above
+    os.remove(f"{PMC_id_convert_output_prefix}_df.pkl")
+    os.remove(f"{PMC_id_convert_output_prefix}_df.csv")
 
