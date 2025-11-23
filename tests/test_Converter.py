@@ -463,5 +463,5 @@ def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
             # the `sys.stderr = StringIO()` line above
     os.remove(f"{PMC_id_convert_output_prefix}_df.pkl")
     os.remove(f"{PMC_id_convert_output_prefix}_df.csv")
-    os.remove(f"{he_test_output_prefix}_df.pkl")
-    os.remove(f"{he_test_output_prefix}_df.csv")
+    os.remove(f"{the_test_output_prefix}_df.pkl")
+    os.remove(f"{the_test_output_prefix}_df.csv")
