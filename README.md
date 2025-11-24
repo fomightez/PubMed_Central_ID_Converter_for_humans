@@ -36,6 +36,25 @@ This means the PubMed_Central_ID_Converter_for_humans won't return identifiers f
 
 -------
 
+
+
+## Try it without touching your system
+
+Try the package in an active Jupyter session without installing anything or logging in or signing up for anything via remote virtual sessions provided by the MyBinder service.
+`<MyBinder session instructions go here>` TBD
+
+If you end up making anything useful, be sure to download it to your local maching as the sessions are ephemeral on remote virtual machine with which you are anonymously connected.
+
+JupyterLab interface: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fomightez/PubMed_Central_ID_Converter_for_humans/main?urlpath=%2Flab%2Ftree%2Fdemo.ipynb)  
+Jupyter Notebook 7+:  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fomightez/PubMed_Central_ID_Converter_for_humans/main?urlpath=%2Ftree%2Fdemo.ipynb)
+
+## Try it in JupyterLite
+
+I would suggest using the package with a full ipykernel as JupyterLite/WASM-based Python are still relatively new & experimental; however, this package will work in present JupyterLite, as you `<CAN POSSIBLY TRY HERE AT GITHUB REPO TO BE MADE IN FUTURE>`? (TBD if add this....) 
+
+
+
+
 ## Installation
 
 ### Using uv (recommended)
@@ -55,19 +74,7 @@ cd PubMed_Central_ID_Converter_for_humans
 uv pip install -e .
 ```
 
-## Try it without touching your system
 
-Try the package in an active Jupyter session without installing anything or logging in or signing up for anything via remote virtual sessions provided by the MyBinder service.
-`<MyBinder session instructions go here>` TBD
-
-If you end up making anything useful, be sure to download it to your local maching as the sessions are ephemeral on remote virtual machine with which you are anonymously connected.
-
-JupyterLab interface: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fomightez/PubMed_Central_ID_Converter_for_humans/main?urlpath=%2Flab%2Ftree%2Fdemo.ipynb)  
-Jupyter Notebook 7+:  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fomightez/PubMed_Central_ID_Converter_for_humans/main?urlpath=%2Ftree%2Fdemo.ipynb)
-
-## Try it in JupyterLite
-
-I would suggest using the package with a full ipykernel as JupyterLite/WASM-based Python are still relatively new & experimental; however, this package will work in present JupyterLite, as you `<CAN POSSIBLY TRY HERE AT GITHUB REPO TO BE MADE IN FUTURE>`? (TBD if add this....) 
 
 ## Quick Start
 
