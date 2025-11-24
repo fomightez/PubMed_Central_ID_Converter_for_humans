@@ -48,9 +48,9 @@ __version__ = '0.1.0'
 #-----------------------------------
 # -or-
 # uv pip install -e .     # LATER THIS WILL BE `pip install PMC-ID-Converter-for-humans` for general users
-# PMC_id_convert PMC3531190 --email test@example.com > testing_better_still.txt
+# PMC_id_convert PMC3531190 --email <your_email_here>
 # -OR-
-# PMC_id_convert PMC3531190 PMC3531191 --email test_settings > testing_multiples.txt
+# PMC_id_convert PMC3531190 PMC3531191 --email <your_email_here>
 #
 #
 # To use via Python:

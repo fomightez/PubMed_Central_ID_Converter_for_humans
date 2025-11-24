@@ -33,6 +33,99 @@ This means the PubMed_Central_ID_Converter_for_humans won't return identifiers f
 
 (Note that [nelsonaloysio's package `pubmed-id`](https://pypi.org/project/pubmed-id/) discussed under the 'Influences' section below, goes beyond using the API and can do some webscaping, supposedly, and so it is able to return identifiers for those not present in PubMed Central, see [here](https://github.com/nelsonaloysio/pubmed-id#scrape-data-from-website) about , "Note: some papers are unavailable from the API, but still return data when scraped, e.g., PMID 15356126". Therefore, [nelsonaloysio's package `pubmed-id`](https://pypi.org/project/pubmed-id/) is able to return identifiers for those not present in PubMed Central)
 
+
+-------
+
+## Installation
+
+### Using uv (recommended)
+```bash
+uv add ????
+```
+
+### Using pip
+```bash
+pip install git+https://github.com/fomightez/PubMed_Central_ID_Converter_for_humans.git
+```
+
+### From source (developers)
+```bash
+git clone https://github.com/fomightez/PubMed_Central_ID_Converter_for_humans.git
+cd PubMed_Central_ID_Converter_for_humans
+uv pip install -e .
+```
+
+## Try it without installing
+
+<MyBinder session instructions go here>
+
+## Try it in JupyterLite
+
+I would suggest using the package with a full ipykernel as JupyterLite/WASM-based Python are still relatively new & experimental; however, this package will work in present JupyterLite, as you <CAN POSSIBLY TRY HERE>? (Will I add this?) 
+
+## Quick Start
+
+You should see the demo notebook for a thorough introduction.   
+Here is the Quick Start Guide to get you started:
+
+### Command Line Tools
+
+```bash
+# Display Usage
+PMC_id_convert --help
+
+
+# PMID
+PMC_id_convert 30003000 --email <your_email_here>
+# PMCID
+PMC_id_convert PMC6039336
+# DOI
+PMC_id_convert 10.1007/s13205-018-1330-z
+# Multiple IDs
+PMC_id_convert 30003000 30003001 30003002
+# Output to a file named with a custom predfix
+PMC_id_convert 30003000 30003001 30003002 -out_prefix results_from_my_ids
+# Output as list of dictionaries
+PMC_id_convert 30003000 30003001 30003002 --outform dictionaries
+
+# Output Dataframe to string that can be redirected
+
+# Output list of dictionaries to text that can be redirected
+PMC_id_convert 30003000 30003001 30003002 --outform dictionaries --return_string
+
+# Output as JSON text (can be redirected to file if, desired)
+PMC_id_convert 30003000 30003001 30003002 --outform json
+
+# Output as JSONL (JSON Lines), a.k.a. NDJSON (Newline Delimited JSON) text (can be redirected to file, if desired)
+PMC_id_convert 30003000 30003001 30003002 --outform jsonl
+```
+
+### Python API
+
+```python
+from src.PMC_ID_Converter_for_humans import PMC_id_convert
+
+# PMCID
+PMC_id_convert('PMC3531190', email = '<your_email_here>')
+
+# Multiple IDs
+PMC_id_convert('PMC3531190', 'PMC3531191123', 'PMC3531191', email = '<your_email_here>')
+
+# PMID
+PMC_id_convert('23193287', email = '<your_email_here>')
+
+# DOI
+PMC_id_convert('10.1093/nar/gks1195', email = '<your_email_here>')
+
+# Output to a file named with a custom predfix
+
+# Output as list of dictionaries
+
+# Output as JSON
+
+# Output as JSONL
+```
+
 ---------
 
 

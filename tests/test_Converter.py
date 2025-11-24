@@ -33,6 +33,9 @@ import time
 
 # NOTE THESE TESTS ARE INTENTIONALLY SLOWED DOWN BY PAUSES TO NOT SLAM API. ###
 
+# TO DO
+# add CLI test of DOI and multiple DOI since it has weird characters like slash
+
 
 #*******************************************************************************
 ##################################
