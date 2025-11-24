@@ -67,7 +67,7 @@ I would suggest using the package with a full ipykernel as JupyterLite/WASM-base
 
 You should see the demo notebook for a thorough introduction.   
 Below is the Quick Start Guide to get you started with the two main routes to use the package.  
-Note although only the first example under each category includes setting the email address, you have to do this step at least once after installation, no matter what type of query you are executing. The email address will be stored and so you only need to supply the address once. (Each new MyBinder-served session counts as a new installation and so you have to do that step each session.)
+Note although only the first example under each category includes setting the email address, you have to do this step at least once after installation, no matter what type of query you are executing. The email address will be stored, and so you only need to supply the address once. (Each new MyBinder-served session counts as a new installation and so you have to do that step each session.)
 
 ### Command Line Tools
 
