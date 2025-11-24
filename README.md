@@ -90,21 +90,27 @@ PMC_id_convert PMC6039336
 PMC_id_convert 10.1007/s13205-018-1330-z
 # Multiple IDs
 PMC_id_convert 30003000 30003001 30003002
-# Output to a file named with a custom predfix
+# Output data to a dataframe with the file named with a custom prefix
 PMC_id_convert 30003000 30003001 30003002 -out_prefix results_from_my_ids
-# Output as list of dictionaries
+# Output data as a list of dictionaries to a Python pickle file (binary format)
 PMC_id_convert 30003000 30003001 30003002 --outform dictionaries
 
-# Output Dataframe to string that can be redirected
+# Output data as a Dataframe to text string that can be redirected
 
-# Output list of dictionaries to text that can be redirected
+# Output data as a list of dictionaries to text that can be redirected
 PMC_id_convert 30003000 30003001 30003002 --outform dictionaries --return_string
 
-# Output as JSON text (can be redirected to file if, desired)
+# Output data as JSON text
 PMC_id_convert 30003000 30003001 30003002 --outform json
 
-# Output as JSONL (JSON Lines), a.k.a. NDJSON (Newline Delimited JSON) text (can be redirected to file, if desired)
+# Output data as JSONL (JSON Lines), a.k.a. NDJSON (Newline Delimited JSON), text
 PMC_id_convert 30003000 30003001 30003002 --outform jsonl
+
+# Output data as JSON text & redirect that to a file
+PMC_id_convert 30003000 30003001 30003002 --outform json > output.txt
+
+# Output data as JSONL (JSON Lines), a.k.a. NDJSON (Newline Delimited JSON), text  & redirect that to a file
+PMC_id_convert 30003000 30003001 30003002 --outform jsonl > output.txt
 ```
 
 ### Python API
@@ -124,13 +130,13 @@ PMC_id_convert('23193287')
 # DOI
 PMC_id_convert('10.1093/nar/gks1195')
 
-# Output to a file named with a custom predfix
+# Output data as a dataframe with the file named with a custom prefix
 
-# Output as list of dictionaries
+# Output data as list of dictionaries
 
-# Output as JSON
+# Output data as a JSON text string
 
-# Output as JSONL
+# Output data as a JSONL (JSON Lines) text string
 ```
 
 ---------
