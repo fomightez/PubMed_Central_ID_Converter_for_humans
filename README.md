@@ -57,16 +57,17 @@ uv pip install -e .
 
 ## Try it without installing
 
-<MyBinder session instructions go here>
+`<MyBinder session instructions go here>` TBF
 
 ## Try it in JupyterLite
 
-I would suggest using the package with a full ipykernel as JupyterLite/WASM-based Python are still relatively new & experimental; however, this package will work in present JupyterLite, as you <CAN POSSIBLY TRY HERE>? (Will I add this?) 
+I would suggest using the package with a full ipykernel as JupyterLite/WASM-based Python are still relatively new & experimental; however, this package will work in present JupyterLite, as you `<CAN POSSIBLY TRY HERE AT GITHUB REPO TO BE MADE IN FUTURE>`? (TBD if add this....) 
 
 ## Quick Start
 
 You should see the demo notebook for a thorough introduction.   
-Here is the Quick Start Guide to get you started:
+Below is the Quick Start Guide to get you started with the two main routes to use the package.  
+Note although only the first example under each category includes setting the email address, you have to do this step at least once after installation, no matter what type of query you are executing. The email address will be stored and so you only need to supply the address once. (Each new MyBinder-served session counts as a new installation and so you have to do that step each session.)
 
 ### Command Line Tools
 
@@ -109,13 +110,13 @@ from src.PMC_ID_Converter_for_humans import PMC_id_convert
 PMC_id_convert('PMC3531190', email = '<your_email_here>')
 
 # Multiple IDs
-PMC_id_convert('PMC3531190', 'PMC3531191123', 'PMC3531191', email = '<your_email_here>')
+PMC_id_convert('PMC3531190', 'PMC3531191123', 'PMC3531191')
 
 # PMID
-PMC_id_convert('23193287', email = '<your_email_here>')
+PMC_id_convert('23193287')
 
 # DOI
-PMC_id_convert('10.1093/nar/gks1195', email = '<your_email_here>')
+PMC_id_convert('10.1093/nar/gks1195')
 
 # Output to a file named with a custom predfix
 
