@@ -55,9 +55,15 @@ cd PubMed_Central_ID_Converter_for_humans
 uv pip install -e .
 ```
 
-## Try it without installing
+## Try it without touching your system
 
-`<MyBinder session instructions go here>` TBF
+Try the package in an active Jupyter session without installing anything or logging in or signing up for anything via remote virtual sessions provided by the MyBinder service.
+`<MyBinder session instructions go here>` TBD
+
+If you end up making anything useful, be sure to download it to your local maching as the sessions are ephemeral on remote virtual machine with which you are anonymously connected.
+
+JupyterLab interface: [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fomightez/PubMed_Central_ID_Converter_for_humans/main?urlpath=%2Flab%2Ftree%2Fdemo.ipynb)  
+Jupyter Notebook 7+:  [![Binder](https://mybinder.org/badge_logo.svg)](https://mybinder.org/v2/gh/fomightez/PubMed_Central_ID_Converter_for_humans/main?urlpath=%2Ftree%2Fdemo.ipynb)
 
 ## Try it in JupyterLite
 
@@ -65,7 +71,7 @@ I would suggest using the package with a full ipykernel as JupyterLite/WASM-base
 
 ## Quick Start
 
-You should see the demo notebook for a thorough introduction.   
+You should see the demonstration notebook for a thorough introduction. Get the full, interactive experience of the demo notebook via MyBinder-served sessions, see under ['Try it without touching your system'](#try-it-without-touching-your-system). (Or [go here](https://nbviewer.org/github/fomightez/PubMed_Central_ID_Converter_for_humans/blob/main/demo.ipynb) for a dull, static version.)   
 Below is the Quick Start Guide to get you started with the two main routes to use the package.  
 Note although only the first example under each category includes setting the email address, you have to do this step at least once after installation, no matter what type of query you are executing. The email address will be stored, and so you only need to supply the address once. (Each new MyBinder-served session counts as a new installation and so you have to do that step each session.)
 
