@@ -405,7 +405,7 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas', return_string 
         Online JSON Validation tool: https://jsonlint.com/
         '''
         #converted_json = json.dumps(data, indent=2) # want JSON with 2 spaces 
-        # for indentation # THIS ORIGINAL ATTEMOPT GAVE VALID JSON BUT WITH each
+        # for indentation # THIS ORIGINAL ATTEMPT GAVE VALID JSON BUT WITH each
         # key pair on a separate line and I want them all on one line to save 
         # files from getting super long when many identifiers used in query.S 
         # Format each object as a single line with space after commas
