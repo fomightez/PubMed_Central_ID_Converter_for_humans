@@ -32,6 +32,8 @@ __version__ = '0.1.0'
 # 
 # 
 # To do:
+# - make a JupyterLite demo notebook and use litegitpuller to run it, see below.
+# - clean up the JupyterLite section of this header below when more established what I am doing for the JupyterLite demo.
 # - remove showing you can get away with `--email test_settings` from 'CURRENT JUPYTERLITE TEST' because want to push users to use email.
 # - change command lines to have `'<your_email_here>'` in all more standard command line
 # examples, but somewhere else note how I tested in terminal while developping early, which current examples show!
@@ -44,7 +46,7 @@ __version__ = '0.1.0'
 # Example,
 # Enter on the command line of your terminal, the line
 #-----------------------------------
-# uv run python -c "from PMC_ID_Converter_for_humans import PMC_id_convert; print(PMC_id_convert('PMC3531190', email='test_settings'))" > testing_better.txt
+# uv run python -c "from PMC_ID_Converter_for_humans import PMC_id_convert; print(PMC_id_convert('PMC3531190', email='test_settings', return_string = True))" > testing_uv_run_output.txt
 #-----------------------------------
 # -or-
 # uv pip install -e .     # LATER THIS WILL BE `pip install PMC-ID-Converter-for-humans` for general users
@@ -59,15 +61,19 @@ __version__ = '0.1.0'
 # 
 #
 #
-# CURRENT JUPYTERLITE TEST along the the line command line use -- closest possible there:
-# Save this as `core_test.py` and run `%pip install requests pandas` in a cell and 
+# ORIGINAL JUPYTERLITE TEST along the the line command line use -- closest possible there:
+# Save this as `core_test.py` (wait, can I use curl equivalent to get the raw code from Github URL <=== I can put that code in a notebook and just have user run the notebook or code block in JupyterLite ===> WAIT, see below for even 'BETTER JUPYTERLITE TEST') and run `%pip install requests pandas` in a cell and 
 # then in a new cell run the following command:
 # `%run core_test.py PMC3531190 --email test_settings`
 # -or to show works with multiple ids:
 # `%run core_test --email test_settings PMC3531190 PMC3531191`
 # -OR- 
 # `%run core_test PMC3531190 PMC3531191 --email test_settings`
-# COMPARE THE RESULTS OF THOSE TO RUNNING `PMC_id_convert PMC3531190 --email test@example.com` and `PMC_id_convert PMC3531190 PMC3531191 --email test_settings`, respectively
+# COMPARE THE RESULTS OF THOSE TO RUNNING `PMC_id_convert PMC3531190 --email test@example.com` and `PMC_id_convert PMC3531190 PMC3531191 --email test_settings`, respectively, in more typical Jupyter/Python situations.
+#
+#
+# BETTER JUPYTERLITE TEST: still need to TO MAKE the notebook but the idea of putting code to use curl equivalent to get the raw code from Github URL got me thinking maybe I can make it easier using litegitpuller . Looked into it, see 'nbgitpuller for lite' in my file `jupyterlite tips and resources.md`. Seems since https://litegitpuller.readthedocs.io/en/latest/lite/lab/?branch=main&repo=https%3A%2F%2Fgithub.com%2Ffomightez%2FPubMed_Central_ID_Converter_for_humans&urlpath=demo.ipynb works to open a notebook with the repo cloned in the session, I can make a notebook for the JupyterLite demo and use a link in my README under https://github.com/fomightez/PubMed_Central_ID_Converter_for_humans/tree/main#try-it-in-jupyterlite to direct the user to where they can try it.
+# COMPARE THE RESULTS OF THOSE TO RUNNING `PMC_id_convert PMC3531190 --email test@example.com` and `PMC_id_convert PMC3531190 PMC3531191 --email test_settings`, respectively, in more typical Jupyter/Python situations.
 #
 #*******************************************************************************
 #
@@ -450,8 +456,11 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas', return_string 
             pickled_df_to_make_fn))
         sys.stderr.write(notify_of_csv_string + '\n')
         sys.stderr.write(notify_pickled_df_string + '\n')
-    #return data
-    return df
+    #return data if chosen
+    if return_string:
+        return df
+    else:
+        return None
 #*******************************************************************************
 ###-**********************END MAIN FUNCTION OF SCRIPT***********************-###
 #*******************************************************************************
@@ -533,7 +542,7 @@ def main():
         # by default it will already be saved a file anyway 
         # but some using it on the command line may want to access the string representation
     elif isinstance(result, list):
-        # if it is a list and script being used on the command line, save the list of dictionaries in pickled form to read in separately & use in Pyton, and `return_string` is true, print the string representation of the list of dictionaries
+        # if it is a list and script being used on the command line, save the list of dictionaries in pickled form to read in separately & use in Pyton, and if `return_string` is true, print the string representation of the list of dictionaries
         data = result
         import pickle
         pickled_list_to_make_fn = '{}_datalist.pkl'.format(

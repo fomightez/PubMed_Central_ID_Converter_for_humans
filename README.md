@@ -103,6 +103,10 @@ PMC_id_convert 30003000 30003001 30003002 -out_prefix results_from_my_ids
 PMC_id_convert 30003000 30003001 30003002 --outform dictionaries
 
 # Output data as a Dataframe to text string that can be redirected
+PMC_id_convert 30003000 30003001 30003002 --return_string
+
+# Output data as a Dataframe to text string that can be redirected (same as above but explicit)
+PMC_id_convert 30003000 30003001 30003002 --outform pandas --return_string
 
 # Output data as a list of dictionaries to text that can be redirected
 PMC_id_convert 30003000 30003001 30003002 --outform dictionaries --return_string
@@ -129,7 +133,7 @@ from src.PMC_ID_Converter_for_humans import PMC_id_convert
 PMC_id_convert('PMC3531190', email = '<your_email_here>')
 
 # Multiple IDs
-PMC_id_convert('PMC3531190', 'PMC3531191123', 'PMC3531191')
+PMC_id_convert('PMC3531190, PMC3531191123, PMC3531191')
 
 # PMID
 PMC_id_convert('23193287')
@@ -137,7 +141,12 @@ PMC_id_convert('23193287')
 # DOI
 PMC_id_convert('10.1093/nar/gks1195')
 
-# Output data as a dataframe with the file named with a custom prefix
+# Output data as a dataframe with a string representation returned as well
+print(PMC_id_convert('PMC3531190,PMC3531191123,PMC3531191', email='<your_email_here>', return_string = True))
+
+# Output data as a dataframe with the file named with a custom prefix  
+PMC_id_convert('PMC3531190,PMC3531191123,PMC3531191', email='<your_email_here>', output_prefix = 'custom_file_name_suffix');
+
 
 # Output data as list of dictionaries
 
