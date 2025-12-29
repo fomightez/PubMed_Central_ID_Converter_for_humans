@@ -46,7 +46,7 @@ __version__ = '0.1.0'
 # Example,
 # Enter on the command line of your terminal, the line
 #-----------------------------------
-# uv run python -c "from PMC_ID_Converter_for_humans import PMC_id_convert; print(PMC_id_convert('PMC3531190', email='test_settings', return_string = True))" > testing_uv_run_output.txt
+# uv run python -c "from PMC_ID_Converter_for_humans import PMC_id_convert; print(PMC_id_convert('PMC3531190', email='test_settings', return_df = True))" > testing_uv_run_output.txt
 #-----------------------------------
 # -or-
 # uv pip install -e .     # LATER THIS WILL BE `pip install PMC-ID-Converter-for-humans` for general users
@@ -217,7 +217,7 @@ def validate_email(email):
 ###------------------------'main' function of script-------------------------###
 
 
-def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas', return_string = False, output_prefix = PMC_id_convert_output_prefix):
+def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas', return_df = False, output_prefix = PMC_id_convert_output_prefix):
     tool='PMC_ID_Converter_for_humans'
     versions='no'
     # print(expected_jsonl_result_text[:-1]) # was adding one too many newlines, 
@@ -457,7 +457,7 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas', return_string 
         sys.stderr.write(notify_of_csv_string + '\n')
         sys.stderr.write(notify_pickled_df_string + '\n')
     #return data if chosen
-    if return_string:
+    if return_df:
         return df
     else:
         return None
@@ -535,7 +535,7 @@ def main():
     # Join the IDs with commas for the API
     ids_string = ','.join(args.ids)
     
-    result = PMC_id_convert(ids_string, email=email, outform = args.outform, return_string = args.return_string, output_prefix = args.output_prefix)
+    result = PMC_id_convert(ids_string, email=email, outform = args.outform, return_df = args.return_string, output_prefix = args.output_prefix)
     if isinstance(result, pd.DataFrame):
         if args.return_string:
             print(result)

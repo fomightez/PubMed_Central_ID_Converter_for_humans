@@ -450,10 +450,10 @@ def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
         os.remove(f"{PMC_id_convert_output_prefix}_df.pkl")
         time.sleep(0.3)
         r_df = PMC_id_convert(
-            'PMC3531190 PMC3531191123 PMC3531191', email = 'test_settings')
+            'PMC3531190 PMC3531191123 PMC3531191', email = 'test_settings', return_df = True)
         assert isinstance(r_df, pd.DataFrame)
         time.sleep(0.3)
-        r_df2 = PMC_id_convert('PMC3531190 PMC3531191123 PMC3531191')
+        r_df2 = PMC_id_convert('PMC3531190 PMC3531191123 PMC3531191', return_df = True)
         assert isinstance(r_df2, pd.DataFrame)
         assert r_df.equals(r_df2), (
             "The returned dataframe doesn't seem to be generated properly.")
@@ -465,7 +465,7 @@ def test_converter_function_working_to_store_email_and_use_stored(tmp_path):
         # test `output_prefix` works with function
         time.sleep(0.3)
         the_test_output_prefix = 'test_THE_DF_output_prefix'
-        r_df3 = PMC_id_convert('PMC3531190 PMC3531191123 PMC3531191',output_prefix = the_test_output_prefix)
+        r_df3 = PMC_id_convert('PMC3531190 PMC3531191123 PMC3531191', return_df = True, output_prefix = the_test_output_prefix)
         assert isinstance(r_df3, pd.DataFrame)
         assert r_df3.equals(r_df), (
             "The returned dataframe doesn't seem to be generated properly.")
