@@ -453,13 +453,13 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas', return_df = Fa
             pickled_df_to_make_fn))
         sys.stderr.write(notify_of_csv_string + '\n')
         sys.stderr.write(notify_pickled_df_string + '\n')
-    # Return dataframe, if opted. This will allow use of the displaying the 
-    # dataframe in Jupyter when the function is used in Python, plus when CLI
-    # usage the return will also be activated in cases with `return_string` and
-    # the `print()` added in the CLI portion will let the string representation
-    # be seen when 
-    if return_df:
-        return df
+        # Return dataframe, if opted. This will allow use of the displaying the 
+        # dataframe in Jupyter when the function is used in Python, plus when CLI
+        # usage the return will also be activated in cases with `return_string` and
+        # the `print()` added in the CLI portion will let the string representation
+        # be seen when `--return_string` flag provided.
+        if return_df:
+            return df
 #*******************************************************************************
 ###-**********************END MAIN FUNCTION OF SCRIPT***********************-###
 #*******************************************************************************
@@ -534,7 +534,16 @@ def main():
     # Join the IDs with commas for the API
     ids_string = ','.join(args.ids)
     
-    result = PMC_id_convert(ids_string, email=email, outform = args.outform, return_df = args.return_string, output_prefix = args.output_prefix)
+    result = PMC_id_convert(ids_string, email=email, outform = args.outform, return_df = True, output_prefix = args.output_prefix)
+    # note that despite the command line version calling things with 
+    # `return_df = True` always, if any other form is used there won't actually 
+    # be a dataframe to return even though `return_df` is True. However, this is 
+    # the easiest way to do this so the `return_string` setting handles what is 
+    # shown when a dataframe is produced by command line calls.  And setting 
+    # `return_df` can be used for controlling if the dataframe gets returned 
+    # when using the main function. And this way abrogates getting `None` passed
+    # though when using the command line to make a dataframe and not displaying 
+    # a representation of the dataframe.
     if isinstance(result, pd.DataFrame):
         if args.return_string:
             print(result)
