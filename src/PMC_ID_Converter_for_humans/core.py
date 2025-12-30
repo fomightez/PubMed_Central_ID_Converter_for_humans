@@ -456,11 +456,13 @@ def PMC_id_convert(ids, email = 'NoneSetYet', outform = 'pandas', return_df = Fa
             pickled_df_to_make_fn))
         sys.stderr.write(notify_of_csv_string + '\n')
         sys.stderr.write(notify_pickled_df_string + '\n')
-    #return data if chosen
+    # Return dataframe, if opted. This will allow use of the displaying the 
+    # dataframe in Jupyter when the function is used in Python, plus when CLI
+    # usage the return will also be activated in cases with `return_string` and
+    # the `print()` added in the CLI portion will let the string representation
+    # be seen when 
     if return_df:
         return df
-    else:
-        return None
 #*******************************************************************************
 ###-**********************END MAIN FUNCTION OF SCRIPT***********************-###
 #*******************************************************************************
