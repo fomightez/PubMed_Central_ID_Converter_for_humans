@@ -141,7 +141,10 @@ PMC_id_convert('23193287')
 # DOI
 PMC_id_convert('10.1093/nar/gks1195')
 
-# Output data as a dataframe with a string representation displayed as well
+# Output data as a dataframe with dataframe displayed as well (will render in nice style in Jupyter)
+PMC_id_convert('PMC3531190,PMC3531191123,PMC3531191', return_df = True)
+
+# Output data as a dataframe and force a string representation to display, even in Jupyter
 print(PMC_id_convert('PMC3531190,PMC3531191123,PMC3531191', return_df = True))
 
 # Output data as a dataframe with the file named with a custom prefix  
