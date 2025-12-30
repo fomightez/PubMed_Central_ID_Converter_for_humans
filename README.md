@@ -82,7 +82,9 @@ You should see the demonstration notebook for a thorough introduction. Get the f
 Below is the Quick Start Guide to get you started with the two main routes to use the package.  
 Note although only the first example under each category includes setting the email address, you have to do this step at least once after installation, no matter what type of query you are executing. The email address will be stored, and so you only need to supply the address once. (Each new MyBinder-served session counts as a new installation and so you have to do that step each session.)
 
-### Command Line Tools
+### Command Line Tool
+
+Examples using the command line:
 
 ```bash
 # Display Usage
@@ -124,7 +126,9 @@ PMC_id_convert 30003000 30003001 30003002 --outform json > output.txt
 PMC_id_convert 30003000 30003001 30003002 --outform jsonl > output.txt
 ```
 
-### Python API
+### Python API 
+
+Examples using the main function via Python:
 
 ```python
 from src.PMC_ID_Converter_for_humans import PMC_id_convert
@@ -148,14 +152,21 @@ PMC_id_convert('PMC3531190,PMC3531191123,PMC3531191', return_df = True)
 print(PMC_id_convert('PMC3531190,PMC3531191123,PMC3531191', return_df = True))
 
 # Output data as a dataframe with the file named with a custom prefix  
-PMC_id_convert('PMC3531190,PMC3531191123,PMC3531191', output_prefix = 'custom_file_name_suffix');
+PMC_id_convert('PMC3531190,PMC3531191123,PMC3531191', output_prefix = 'custom_file_name_suffix')
 
+# Python list as input
+python_list_ids = ['PMC3531190','PMC3531191123','PMC3531191']
+id_list_as_text = ','.join(python_list_ids)
+PMC_id_convert(id_list_as_text, output_prefix = 'shows_can_use_list')
 
 # Output data as list of dictionaries
+list_of_result_dicts = PMC_id_convert('PMC3531190, PMC3531191', outform = 'dictionaries')
 
 # Output data as a JSON text string
+print(PMC_id_convert('PMC3531190, PMC3531191', outform = 'json'))
 
 # Output data as a JSONL (JSON Lines) text string
+print(PMC_id_convert('PMC3531190, PMC3531191', outform = 'jsonl'))
 ```
 
 ---------
