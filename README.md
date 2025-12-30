@@ -93,14 +93,22 @@ PMC_id_convert --help
 
 # PMID
 PMC_id_convert 30003000 --email <your_email_here>
+
 # PMCID
 PMC_id_convert PMC6039336
-# DOI
+
+# DOI (try quotes if this fails, see next example)
 PMC_id_convert 10.1007/s13205-018-1330-z
+
+# multiple DOIs (for improved chances it will work on most platforms, I suggest wrapping each DOI in quotes)
+PMC_id_convert "10.1007/s13205-018-1330-z" "10.1093/nar/gks1195"
+
 # Multiple IDs
 PMC_id_convert 30003000 30003001 30003002
+
 # Output data to a dataframe with the file named with a custom prefix
 PMC_id_convert 30003000 30003001 30003002 -out_prefix results_from_my_ids
+
 # Output data as a list of dictionaries to a Python pickle file (binary format)
 PMC_id_convert 30003000 30003001 30003002 --outform dictionaries
 
@@ -144,6 +152,9 @@ PMC_id_convert('23193287')
 
 # DOI
 PMC_id_convert('10.1093/nar/gks1195')
+
+# multiple DOIs
+PMC_id_convert('10.1093/nar/gks1195,10.1007/s13205-018-1330-z')
 
 # Output data as a dataframe with dataframe displayed as well (will render in nice style in Jupyter)
 PMC_id_convert('PMC3531190,PMC3531191123,PMC3531191', return_df = True)

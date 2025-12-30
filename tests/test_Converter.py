@@ -34,7 +34,7 @@ import time
 # NOTE THESE TESTS ARE INTENTIONALLY SLOWED DOWN BY PAUSES TO NOT SLAM API. ###
 
 # TO DO
-# add CLI test of DOI and multiple DOI since it has weird characters like slash
+# - ????
 
 
 #*******************************************************************************
@@ -382,7 +382,41 @@ def test_converter_cli_working_to_store_email_and_use_stored(tmp_path):
     os.system(f'PMC_id_convert 30003000 30003001 30003002 --return_string 1> {pmc_idconv_cli_result_using_stored_email} 2>/dev/null')
     assert pmc_idconv_cli_result_using_stored_email.read_text().rstrip('\n') == pandas_df_expected, ("The stored email doesn't seem to get used???!?!") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
 
-
+pandas_df_expected_for_singleDOI= '''                         doi       pmcid      pmid               requested-id
+0  10.1007/s13205-018-1330-z  PMC6039336  30003000  10.1007/s13205-018-1330-z'''
+pandas_df_expected_for_DOIs= '''                         doi       pmcid      pmid               requested-id
+0        10.1093/nar/gks1195  PMC3531190  23193287        10.1093/nar/gks1195
+1  10.1007/s13205-018-1330-z  PMC6039336  30003000  10.1007/s13205-018-1330-z'''
+def test_converter_cli_working_with_DOIs(tmp_path):
+    # Because DOIs involve slashes and dots and maybe other weird characters(?)
+    # I want to test this works on command line when IDs are quoted as I suggest
+    # for even single IDs.
+    # Try single DOI first-------------------------------------------###########
+    doi_test_fn_base = 'PMC_ID_Converter_for_humans_DOI_result.txt'
+    PMC_ID_Converter_for_humans_DOI_result = tmp_path / f'{doi_test_fn_base}'
+    time.sleep(0.3)
+    os.system(f'PMC_id_convert 10.1007/s13205-018-1330-z --email test_settings --return_string 1> {PMC_ID_Converter_for_humans_DOI_result} 2>/dev/null') # `2>/dev/null` is so stderr feedback to user about saving files doesn't untidy the test output
+    assert PMC_ID_Converter_for_humans_DOI_result .read_text().rstrip('\n') == pandas_df_expected_for_singleDOI, ("Result of using PMC_ID_Converter_for_humans on command line with a single unquoted DOI is not matching Pandas dataframe expected") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+    # clean up the text file made by this one
+    os.remove(f"{PMC_ID_Converter_for_humans_DOI_result}")
+    time.sleep(0.3)
+    os.system(f"PMC_id_convert '10.1007/s13205-018-1330-z' --email test_settings --return_string 1> {PMC_ID_Converter_for_humans_DOI_result} 2>/dev/null") # `2>/dev/null` is so stderr feedback to user about saving files doesn't untidy the test output
+    assert PMC_ID_Converter_for_humans_DOI_result .read_text().rstrip('\n') == pandas_df_expected_for_singleDOI, ("Result of using PMC_ID_Converter_for_humans on command line with a single quoted DOI is not matching Pandas dataframe expected") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+    # clean up the text file made by this one
+    os.remove(f"{PMC_ID_Converter_for_humans_DOI_result}")
+    # Try multiple DOIs next-------------------------------------------#########
+    dois_test_fn_base = 'PMC_ID_Converter_for_humans_DOIs_result.txt'
+    PMC_ID_Converter_for_humans_DOIs_result = tmp_path / f'{dois_test_fn_base}'
+    time.sleep(0.3)
+    os.system(f'PMC_id_convert 10.1093/nar/gks1195 10.1007/s13205-018-1330-z --email test_settings --return_string 1> {PMC_ID_Converter_for_humans_DOIs_result} 2>/dev/null') # `2>/dev/null` is so stderr feedback to user about saving files doesn't untidy the test output
+    assert PMC_ID_Converter_for_humans_DOIs_result .read_text().rstrip('\n') == pandas_df_expected_for_DOIs, ("Result of using PMC_ID_Converter_for_humans on command line with multiple unquoted DOIs is not matching Pandas dataframe expected") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+    # clean up the text file made by this one
+    os.remove(f"{PMC_ID_Converter_for_humans_DOIs_result}")
+    time.sleep(0.3)
+    os.system(f"PMC_id_convert '10.1093/nar/gks1195' '10.1007/s13205-018-1330-z' --email test_settings --return_string 1> {PMC_ID_Converter_for_humans_DOIs_result} 2>/dev/null") # `2>/dev/null` is so stderr feedback to user about saving files doesn't untidy the test output
+    assert PMC_ID_Converter_for_humans_DOIs_result .read_text().rstrip('\n') == pandas_df_expected_for_DOIs, ("Result of using PMC_ID_Converter_for_humans on command line with multiple quoted DOIs is not matching Pandas dataframe expected") # Note the extra `rstrip('\n')` there fixes the fact that the shell adds another newline when you use redirect to make a file.
+    # clean up the text file made by this one
+    os.remove(f"{PMC_ID_Converter_for_humans_DOIs_result}")
 
 
 
