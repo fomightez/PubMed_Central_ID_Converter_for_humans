@@ -18,7 +18,7 @@ Summary of Key Features:
 
 **Features**
 
-A Python-based library for using the PubMed Central ID Convert API for dealing biomedical and scientific literature in modern Python/Jupyter ecosystems.  
+A Python-based library for using the PubMed Central ID Convert API for biomedical and scientific literature in modern Python/Jupyter ecosystems.  
 Use the library to get PubMed Central identifiers, PubMed identifiers (PMIDs), and DOI identifiers for scientific literature.  
 In an opionated choice, the default format for the results is a Pandas dataframe; however, this can be adjusted via flag/argument settings. If you aren't familiar with Pandas, the provided demonstration notebook illustrates convenient steps, such using the Pandas dataframe to make a lookup table / key-value mapping.  
 It is largely kernel-agnostic as far as Python goes, which means you can use it in JupyterLite as well as in more standard Jupyter where a typical ipykernel is involved. At present, command line use of the library is not compatible with Pyodide/JupyterLite. Command line use is fully allowed in a typical system with a POSIX system shell (Bash/zsh-type) where standard Python is installed.    
@@ -178,6 +178,24 @@ print(PMC_id_convert('PMC3531190, PMC3531191', outform = 'json'))
 
 # Output data as a JSONL (JSON Lines) text string
 print(PMC_id_convert('PMC3531190, PMC3531191', outform = 'jsonl'))
+
+# Output data as JSON text & redirect that to a file when running in IPython/Jupyter
+result = PMC_id_convert('PMC3531190, PMC3531191', outform = 'json')
+%store result >output.txt
+
+# Output data as JSONL (JSON Lines) text  & redirect that to a file when running in IPython/Jupyter
+result = PMC_id_convert('PMC3531190, PMC3531191', outform = 'jsonl')
+%store result >output.txt
+
+# Output data as JSON text & redirect that to a file when running in standard Python
+result = PMC_id_convert('PMC3531190, PMC3531191', outform='json')
+with open('output.txt', 'w') as f:
+    f.write(result)
+
+# Output data as JSONL (JSON Lines) text  & redirect that to a file when running in standard Python
+result = PMC_id_convert('PMC3531190, PMC3531191', outform='jsonl')
+with open('output.txt', 'w') as f:
+    f.write(result)
 ```
 
 ---------

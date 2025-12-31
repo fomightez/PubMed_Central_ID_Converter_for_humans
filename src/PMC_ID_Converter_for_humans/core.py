@@ -4,7 +4,7 @@ __version__ = '0.1.0'
 #
 #*******************************************************************************
 # PubMed_Central_ID_Converter_for_humans: PubMed API use for humans
-# A simple library for using the PubMed Central ID Convert API for dealing 
+# A simple library for using the PubMed Central ID Convert API for 
 # biomedical and scientific literature in modern Python/Jupyter ecosystems.  
 # Summary of Key Features:
 # - Control format of results: Python dictionary, Pandas dataframe, or JSON/
