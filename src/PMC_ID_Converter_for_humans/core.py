@@ -11,7 +11,7 @@ __version__ = '0.1.0'
 #   JSONL text.
 # - It is Pyodide/JupyterLite compatible. (WASM-based Python compatible!)
 ## Features##
-# A Python-based library for using the PubMed Central ID Convert API for dealing 
+# A Python-based library for using the PubMed Central ID Convert API for 
 # biomedical and scientific literature in modern Python/Jupyter ecosystems.  
 # Use the library to get PubMed Central identifiers, PubMed identifiers (PMIDs), 
 # and DOI identifiers for scientific literature.  
