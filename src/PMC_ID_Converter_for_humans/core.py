@@ -527,7 +527,7 @@ def main():
             print("Error: No email found. Please provide --email on first use.")
             #print("Example: %run core_test.py --email your@email.com PMC3531190")
             print("Example: PMC_id_convert --email <email address here> PMC3531190")
-            print("-or")
+            print("-Or-")
             print("Example: %run core_test.py --email <email address here> PMC3531190")
             sys.exit(1)
     
