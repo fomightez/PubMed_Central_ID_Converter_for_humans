@@ -52,17 +52,24 @@ Jupyter Notebook 7+:  [![Binder](https://mybinder.org/badge_logo.svg)](https://m
 
 I would suggest using the package with a full ipykernel as JupyterLite/WASM-based Python are still relatively new & experimental; however, this package will work in present JupyterLite, as you `<CAN POSSIBLY TRY HERE AT GITHUB REPO TO BE MADE IN FUTURE>`? (TBD if add this....) 
 
+## `uv` users: Try it without installing
 
+If you want to test `PMC_id_convert` on the command line without actually installing it, you can directly run it yourself with the help of uv using `uvx`, like so:
 
+```text
+uvx --from git+https://github.com/fomightez/PubMed_Central_ID_Converter_for_humans.git PMC_id_convert 30003000 --email <your_email_here>
+```
 
 ## Installation
 
-### Using uv (recommended)
+### Using `uv` (recommended)
 ```bash
 uv add ????
 ```
 
-### Using pip
+You can also use `uv pip install ???` if you are using other `pip` workflows with `uv`.
+
+### Using `pip`
 ```bash
 pip install git+https://github.com/fomightez/PubMed_Central_ID_Converter_for_humans.git
 ```

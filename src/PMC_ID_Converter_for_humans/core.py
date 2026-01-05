@@ -46,6 +46,10 @@ __version__ = '0.1.0'
 # uv run python -c "from PMC_ID_Converter_for_humans import PMC_id_convert; print(PMC_id_convert('PMC3531190', email='test_settings', return_df = True))" > testing_uv_run_output.txt
 #-----------------------------------
 # -or-
+# uvx --from git+https://github.com/fomightez/PubMed_Central_ID_Converter_for_humans.git PMC_id_convert 30003000 --email <your_email_here>
+# (That one doesn't install it but lets you temporarily use the CLI entrypoint)
+#-----------------------------------
+# -or-
 # uv pip install -e .     # LATER THIS WILL BE `pip install PMC-ID-Converter-for-humans` for general users
 # PMC_id_convert PMC3531190 --email <your_email_here>
 # -OR-
