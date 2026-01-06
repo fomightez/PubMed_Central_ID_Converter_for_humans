@@ -36,7 +36,7 @@ This means the PubMed_Central_ID_Converter_for_humans won't return identifiers f
 
 -------
 
-
+Here's three ways to try the package without installing anything on your machine; the first two you run it via your browser and the final one is for `uv` users:
 
 ## Try it without touching your system
 
@@ -50,9 +50,17 @@ Jupyter Notebook 7+:  [![Binder](https://mybinder.org/badge_logo.svg)](https://m
 
 ## Try it in JupyterLite
 
-I would suggest using the package with a full ipykernel as JupyterLite/WASM-based Python are still relatively new & experimental; however, this package will work in present JupyterLite, as you `<CAN POSSIBLY TRY HERE AT GITHUB REPO TO BE MADE IN FUTURE>`? (TBD if add this....) 
+I would suggest using the package with a full ipykernel as JupyterLite/WASM-based Python are still relatively new & experimental; however, this package will work in present JupyterLite with a Python-based kernel, as you can demonstrate in your JupyterLite session on your machine by pressing this following link:
 
-## `uv` users: Try it without installing
+[Open the JupyterLite demo notebook via litegitpuller](https://litegitpuller.readthedocs.io/en/latest/lite/lab/?branch=main&repo=https%3A%2F%2Fgithub.com%2Ffomightez%2FPubMed_Central_ID_Converter_for_humans&urlpath=notebooks%2Fjupyterlite_demo.ipynb)
+
+JupyterLite has the advantage that everything stays on your own machine. If you have privacy or security concerns in relation to something in your workflow.
+
+litegitpuller gets the entire package repo and offers the demo notebook. Alternatively, you could install the package in your JupyterLite session of choice by running `%pip install git+https://github.com/fomightez/PubMed_Central_ID_Converter_for_humans.git PMC_id_convert` at the top of the notebook, and then you can run `from src.PMC_ID_Converter_for_humans import PMC_id_convert` to import the main function.
+
+
+
+## `uv` users: Try it without installing permanently
 
 If you want to test `PMC_id_convert` on the command line without actually installing it, you can directly run it yourself with the help of uv using `uvx`, like so:
 
