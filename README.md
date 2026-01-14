@@ -50,13 +50,15 @@ Jupyter Notebook 7+:  [![Binder](https://mybinder.org/badge_logo.svg)](https://m
 
 ## Try it in JupyterLite
 
-I would suggest using the package with a full ipykernel as JupyterLite/WASM-based Python are still relatively new & experimental; however, this package will work in present JupyterLite with a Python-based kernel, as you can demonstrate in your JupyterLite session on your machine by pressing this following link:
+I would suggest using the package with a full ipykernel as JupyterLite with WASM-based is still relatively new & experimental; however, this package will work in present JupyterLite with a Python-based kernel. You can demonstrate this in a JupyterLite session on your machine by pressing this following badge:
 
-[Open the JupyterLite demo notebook via litegitpuller](https://litegitpuller.readthedocs.io/en/latest/lite/lab/?branch=main&repo=https%3A%2F%2Fgithub.com%2Ffomightez%2FPubMed_Central_ID_Converter_for_humans&urlpath=notebooks%2Fjupyterlite_demo.ipynb)
+[![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://fomightez.github.io/lite_PMC_Converter4Humans/lab/index.html?fromURL=https://raw.githubusercontent.com/fomightez/PubMed_Central_ID_Converter_for_humans/refs/heads/main/notebooks/jupyterlite_demo.ipynb)
 
 JupyterLite has the advantage that everything stays on your own machine. If you have privacy or security concerns in relation to something in your workflow.
 
-litegitpuller gets the entire package repo and offers the demo notebook. Alternatively, you could install the package in your JupyterLite session of choice by running `%pip install git+https://github.com/fomightez/PubMed_Central_ID_Converter_for_humans.git PMC_id_convert` at the top of the notebook, and then you can run `from src.PMC_ID_Converter_for_humans import PMC_id_convert` to import the main function.
+(See more about this JupyterLite offering where it is hosted [here](https://github.com/fomightez/lite_PMC_Converter4Humans).)
+
+
 
 
 
