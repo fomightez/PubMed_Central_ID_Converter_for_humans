@@ -54,7 +54,7 @@ I would suggest using the package with a full ipykernel as JupyterLite with WASM
 
 [![lite-badge](https://jupyterlite.rtfd.io/en/latest/_static/badge.svg)](https://fomightez.github.io/lite_PMC_Converter4Humans/lab/index.html?fromURL=https://raw.githubusercontent.com/fomightez/PubMed_Central_ID_Converter_for_humans/refs/heads/main/notebooks/jupyterlite_demo.ipynb)
 
-JupyterLite has the advantage that everything stays on your own machine. If you have privacy or security concerns in relation to something in your workflow.
+JupyterLite has the advantage that everything stays on your own machine, which is potentially helpful if you have privacy or security concerns in relation to something in your workflow.
 
 (See more about this JupyterLite offering where it is hosted [here](https://github.com/fomightez/lite_PMC_Converter4Humans).)
 
